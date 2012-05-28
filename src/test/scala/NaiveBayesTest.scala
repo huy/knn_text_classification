@@ -9,13 +9,16 @@ class NaiveBayesTest extends FunSuite {
 
      val nb = new NaiveBayes[Country]
 
-     nb.train(china,"Chinese Beijing Chinese".split(" ").elements)
-     nb.train(china,"Chinese Chinese Shanghai".split(" ").elements)
-     nb.train(china,"Chinese Macao".split(" ").elements) 
-     nb.train(other,"Tokyo Japan Chinese".split(" ").elements) 
-     val (country,score) = nb.apply("Chinese Chinese Chinese Tokyo Japan".split(" ").elements)
-     println(score)
-     expect(country) { china }
+     Map("Chinese Beijing Chinese"->china,
+         "Chinese Chinese Shanghai"->china,
+         "Chinese Macao"->china,
+         "Tokyo Japan Chinese"->other).foreach{ case (str,country)=>
+       nb.train(country,List.fromArray(str.split(" ")))
+     }
+     println(nb.info)
+
+     expect(china) { nb.apply(List.fromArray("Chinese Chinese Chinese Tokyo Japan".split(" ")))._1 }
+     expect(other) { nb.apply(List.fromArray("Tokyo Japan".split(" ")))._1 }
   }
  
 }

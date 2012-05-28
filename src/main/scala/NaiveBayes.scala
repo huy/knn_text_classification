@@ -11,7 +11,7 @@ class NaiveBayes[C] {
    var vocabulary = new mutable.HashSet[String]
    var nDocs = 0
 
-   def train(klass: C, doc: Iterator[String]) = {
+   def train(klass: C, doc: List[String]) = {
      if( !allKlassInfo.contains(klass) ){
        allKlassInfo += (klass->new KlassInfo(0,0,new mutable.HashMap[String,Int]))
      }
@@ -29,16 +29,34 @@ class NaiveBayes[C] {
      }
    }
 
-   def apply(doc: Iterator[String]): (C,Double) = {
+   def info={
+     println("vocabulary's size: " + vocabulary.size)
+     println("nDocs: " + nDocs)
+     allKlassInfo.foreach{ case (klass,info)=> 
+       println("text length of " + klass  + ":" + info.nTerms)
+       println("nDocs of " + klass  + ":" + info.nDocs)
+       vocabulary.foreach { term =>
+         val freq = if (info.termFreq.contains(term)) info.termFreq(term) else 0
+
+         println("freq of term " + term + " in " + klass  + ":" + freq)
+         println("P(t|c) - probability of term " + term + " in " + klass + ":" + 
+                 probabilityTermInKlass(term,klass)) 
+       }
+     }
+   }
+
+   def apply(doc: List[String]): (C,Double) = {
+     val str = doc.reduceLeft[String]{(acc,t) => acc+ " " + t }
      allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}.maxBy{_._2}
    }
 
    private def probabilityTermInKlass(term: String, klass: C): Double={
      val klassInfo = allKlassInfo(klass)
-     (klassInfo.termFreq(term) + 1.0)/(klassInfo.nTerms+vocabulary.size)
+     val freq = if (klassInfo.termFreq.contains(term)) klassInfo.termFreq(term) else 0
+     (freq + 1.0)/(klassInfo.nTerms+vocabulary.size)
    }
 
-   private def score(klass: C, doc: Iterator[String]): Double = {
+   private def score(klass: C, doc: List[String]): Double = {
      val klassInfo = allKlassInfo(klass)
      val probabilityDocInKlass = (klassInfo.nDocs + 0.0)/nDocs
 
