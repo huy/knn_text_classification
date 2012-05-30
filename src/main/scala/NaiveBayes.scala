@@ -13,19 +13,19 @@ class NaiveBayes[C] {
 
    def train(klass: C, doc: Seq[String]) = {
      if( !allKlassInfo.contains(klass) ){
-       allKlassInfo += (klass->new KlassInfo(0,0,new mutable.HashMap[String,Int]))
+       allKlassInfo += (klass->KlassInfo(0,0,new mutable.HashMap[String,Int]))
      }
 
      val klassInfo = allKlassInfo(klass)
      klassInfo.nDocs += 1
      nDocs += 1
-     doc.foreach { t=>
-       if( !klassInfo.termFreq.contains(t) )
-         klassInfo.termFreq += (t->1)
+     doc.foreach { term=>
+       if( !klassInfo.termFreq.contains(term) )
+         klassInfo.termFreq += (term->1)
        else
-         klassInfo.termFreq(t) += 1
+         klassInfo.termFreq(term) += 1
        klassInfo.nTerms += 1
-       vocabulary += t
+       vocabulary += term
      }
    }
 
@@ -47,12 +47,14 @@ class NaiveBayes[C] {
 
    def apply(doc: Seq[String]): (C,Double) = {
      val str = doc.reduceLeft[String]{(acc,t) => acc+ " " + t }
+
      allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}.maxBy{_._2}
    }
 
    private def probabilityTermInKlass(term: String, klass: C): Double={
      val klassInfo = allKlassInfo(klass)
      val freq = if (klassInfo.termFreq.contains(term)) klassInfo.termFreq(term) else 0
+
      (freq + 1.0)/(klassInfo.nTerms+vocabulary.size)
    }
 
