@@ -11,7 +11,7 @@ class NaiveBayes[C] {
    var vocabulary = new mutable.HashSet[String]
    var nDocs = 0
 
-   def train(klass: C, doc: List[String]) = {
+   def train(klass: C, doc: Seq[String]) = {
      if( !allKlassInfo.contains(klass) ){
        allKlassInfo += (klass->new KlassInfo(0,0,new mutable.HashMap[String,Int]))
      }
@@ -45,7 +45,7 @@ class NaiveBayes[C] {
      }
    }
 
-   def apply(doc: List[String]): (C,Double) = {
+   def apply(doc: Seq[String]): (C,Double) = {
      val str = doc.reduceLeft[String]{(acc,t) => acc+ " " + t }
      allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}.maxBy{_._2}
    }
@@ -56,7 +56,7 @@ class NaiveBayes[C] {
      (freq + 1.0)/(klassInfo.nTerms+vocabulary.size)
    }
 
-   private def score(klass: C, doc: List[String]): Double = {
+   private def score(klass: C, doc: Seq[String]): Double = {
      val klassInfo = allKlassInfo(klass)
      val probabilityDocInKlass = (klassInfo.nDocs + 0.0)/nDocs
 
