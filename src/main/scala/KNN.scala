@@ -1,13 +1,17 @@
 import scala.collection._
 
-/**
-Implements K Nearest Neighbor text classiﬁcation algorithm from Text Book
+/* 
+Implementation of Vector Space Model used in text classification from Text Book
 "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
-**/
-
-class SimpleDocIndex[DI] {
+*/
+class VectorSpace[DI] {
 
   class TermVector(doc: Seq[String]){
+
+     private val pair = process(doc)
+
+     def terms = pair._1
+     def termFreqs = pair._2
 
      private def process(doc: Seq[String]): (Array[String],Array[Int])= {
        var tmp = new mutable.HashMap[String,Int]
@@ -19,7 +23,7 @@ class SimpleDocIndex[DI] {
        var terms = new Array[String](tmp.size)
        var termFreqs = new Array[Int](tmp.size)
        var i = 0
-       tmp.keys.toList.sort{_<_}.foreach { term=>
+       tmp.keys.toList.sortWith{_<_}.foreach { term=>
           terms(i) = term
           termFreqs(i) = tmp(term)
           i += 1
@@ -46,17 +50,13 @@ class SimpleDocIndex[DI] {
        }      
        result
      } 
-
-     var pair = process(doc)
-     var terms = pair._1
-     var termFreqs = pair._2
   }
 
   var termIndex = new mutable.HashMap[String,Int]
   var docIndex = new mutable.HashMap[DI,TermVector]
   var nDocs = 0
 
-  def add(docId: DI, doc: Seq[String]) = {
+  def vectorize(docId: DI, doc: Seq[String]) = {
     doc.foreach{ term=>
       if( !termIndex.contains(term) )
         termIndex += (term->0)
@@ -85,9 +85,12 @@ class SimpleDocIndex[DI] {
       val idf = math.log(nDocs/termIndex(v1.terms(i)))
       sum+1.0*v1.termFreqs(i)*v2.termFreqs(j)*idf*idf/(v1.vectorLen*v2.vectorLen)
     }
-    
   }
 }
 
+/**
+Implements K Nearest Neighbor text classiﬁcation algorithm from Text Book
+"Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
+**/
 class KNN[C,DI] {
 }
