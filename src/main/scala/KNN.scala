@@ -52,39 +52,41 @@ class VectorSpace[DI] {
      } 
   }
 
-  var termIndex = new mutable.HashMap[String,Int]
-  var docIndex = new mutable.HashMap[DI,TermVector]
+  var allTerms = new mutable.HashMap[String,Int]
+  var allDocs = new mutable.HashMap[DI,TermVector]
   var nDocs = 0
 
   def vectorize(docId: DI, doc: Seq[String]) = {
     doc.foreach{ term=>
-      if( !termIndex.contains(term) )
-        termIndex += (term->0)
-      termIndex(term) += 1
+      if( !allTerms.contains(term) )
+        allTerms += (term->0)
+      allTerms(term) += 1
     }
 
-    if( !docIndex.contains(docId) )
-       docIndex += (docId->new TermVector(doc))
+    if( !allDocs.contains(docId) )
+       allDocs += (docId->new TermVector(doc))
   }
 
   def docFreq(term: String): Int = {
-    if( !termIndex.contains(term) )
+    if( !allTerms.contains(term) )
       return 0;
      
-    termIndex(term)
+    allTerms(term)
   }
 
-  def score(docId1: DI, docId2: DI): Double = {
-    if( !docIndex.contains(docId1) || !docIndex.contains(docId2)) 
-      return 0.0 // ?should be None
+  def score(one: DI, other: DI): Option[Double] = {
+    if( !allDocs.contains(one) || !allDocs.contains(other)) 
+      return None
 
-    val v1 = docIndex(docId1)
-    val v2 = docIndex(docId2)
+    val v1 = allDocs(one)
+    val v2 = allDocs(other)
 
-    v1.intersect(v2).foldLeft(0.0) {case (sum,(i,j))=>
-      val idf = math.log(nDocs/termIndex(v1.terms(i)))
+    val result = v1.intersect(v2).foldLeft(0.0) {case (sum,(i,j))=>
+      val idf = math.log(nDocs/allTerms(v1.terms(i)))
       sum+1.0*v1.termFreqs(i)*v2.termFreqs(j)*idf*idf/(v1.vectorLen*v2.vectorLen)
     }
+
+    return Some(result)
   }
 }
 
@@ -92,5 +94,28 @@ class VectorSpace[DI] {
 Implements K Nearest Neighbor text classiﬁcation algorithm from Text Book
 "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 **/
-class KNN[C,DI] {
+class KNN[C,DI](var vectorSpace: VectorSpace[DI]) {
+   var classified = new mutable.HashMap[DI,C] 
+
+   def train(docId: DI,klass: C) = {
+     if(vectorSpace.allDocs.contains(docId)){
+       if(classified.contains(docId))
+          classified(docId) = klass
+
+       classified += docId->klass
+     }
+   }
+
+   def apply(test: DI, k: Int) : Option[C] = {
+     if(!vectorSpace.allDocs.contains(test))
+       return None
+
+     val result = classified.keys.map{sample=>
+       Tuple2(sample,vectorSpace.score(test,sample))
+     }.toList.sortBy(_._2).take(k).groupBy{
+       case (sample,score)=> classified(sample)}.map{
+       case (klass,samples) => (klass,samples.size)}.toList.sortBy(_._2).head._1
+
+     return Some(result)
+   }
 }

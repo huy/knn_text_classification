@@ -16,13 +16,13 @@ class VectorSpaceTest extends FunSuite with BeforeAndAfter {
   }
 
   test("term freqs") {
-     expect(List("auto","best","car")){vs.docIndex(1).terms.toList }
-     expect(List(3,14,27)){vs.docIndex(1).termFreqs.toList }
+     expect(List("auto","best","car")){vs.allDocs(1).terms.toList }
+     expect(List(3,14,27)){vs.allDocs(1).termFreqs.toList }
   }
 
   test("normalized term freqs") {
-     expect(List(0.1,0.46,0.88).map{ntf=>math.round(ntf*vs.docIndex(1).vectorLen)}){
-       vs.docIndex(1).termFreqs.toList
+     expect(List(0.1,0.46,0.88).map{ntf=>math.round(ntf*vs.allDocs(1).vectorLen)}){
+       vs.allDocs(1).termFreqs.toList
      }
   }
  
