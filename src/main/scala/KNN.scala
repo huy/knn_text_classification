@@ -74,9 +74,9 @@ class VectorSpace[DI] {
     allTerms(term)
   }
 
-  def score(one: DI, other: DI): Option[Double] = {
+  def score(one: DI, other: DI): Double = {
     if( !allDocs.contains(one) || !allDocs.contains(other)) 
-      return None
+      return 0.0
 
     val v1 = allDocs(one)
     val v2 = allDocs(other)
@@ -86,7 +86,7 @@ class VectorSpace[DI] {
       sum+1.0*v1.termFreqs(i)*v2.termFreqs(j)*idf*idf/(v1.vectorLen*v2.vectorLen)
     }
 
-    return Some(result)
+    return result
   }
 }
 
@@ -111,7 +111,7 @@ class KNN[C,DI](var vectorSpace: VectorSpace[DI]) {
        return None
 
      val result = classified.keys.map{sample=>
-       Tuple2(sample,vectorSpace.score(test,sample))
+       Tuple2(sample,(-vectorSpace.score(test,sample)))
      }.toList.sortBy(_._2).take(k).groupBy{
        case (sample,score)=> classified(sample)}.map{
        case (klass,samples) => (klass,samples.size)}.toList.sortBy(_._2).head._1
