@@ -11,7 +11,7 @@ class NaiveBayesTest extends FunSuite {
          "Tokyo Japan Chinese"->"other").foreach{ case (str,country)=>
        nb.train(country,str.split(" "))
      }
-     println(nb.info)
+     // println(nb.info)
 
      expect("china") { nb.apply("Chinese Chinese Chinese Tokyo Japan".split(" "))._1 }
      expect("other") { nb.apply("Tokyo Japan".split(" "))._1 }

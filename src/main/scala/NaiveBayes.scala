@@ -40,7 +40,7 @@ class NaiveBayes[C] {
 
          println("freq of term " + term + " in " + klass  + ":" + freq)
          println("P(t|c) - probability of term " + term + " in " + klass + ":" + 
-                 probabilityTermInKlass(term,klass)) 
+                 probabilityTermGivenKlass(term,klass)) 
        }
      }
    }
@@ -51,7 +51,7 @@ class NaiveBayes[C] {
      allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}.maxBy{_._2}
    }
 
-   private def probabilityTermInKlass(term: String, klass: C): Double={
+   private def probabilityTermGivenKlass(term: String, klass: C): Double={
      val klassInfo = allKlassInfo(klass)
      val freq = klassInfo.termFreq.getOrElse(term,0)
 
@@ -60,10 +60,10 @@ class NaiveBayes[C] {
 
    private def score(klass: C, doc: Seq[String]): Double = {
      val klassInfo = allKlassInfo(klass)
-     val probabilityDocInKlass = (klassInfo.nDocs + 0.0)/nDocs
+     val probabilityDocGivenKlass = (klassInfo.nDocs + 0.0)/nDocs
 
-     val result = doc.foldLeft(math.log(probabilityDocInKlass)){ (sum,t) => 
-        sum + math.log(probabilityTermInKlass(t,klass))
+     val result = doc.foldLeft(math.log(probabilityDocGivenKlass)){ (sum,t) => 
+        sum + math.log(probabilityTermGivenKlass(t,klass))
      }
 
      result
