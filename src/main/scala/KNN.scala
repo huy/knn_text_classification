@@ -110,11 +110,11 @@ class KNN[C,DI](var vectorSpace: VectorSpace[DI]) {
      if(!vectorSpace.allDocs.contains(test))
        return None
 
-     val result = classified.keys.map{sample=>
-       Tuple2(sample,(-vectorSpace.score(test,sample)))
-     }.toList.sortBy(_._2).take(k).groupBy{
-       case (sample,score)=> classified(sample)}.map{
-       case (klass,samples) => (klass,samples.size)}.toList.sortBy(_._2).head._1
+     val result = classified.keys.map{ sample=>
+       Tuple2(sample,vectorSpace.score(test,sample))
+       }.toList.sortBy(_._2).takeRight(k).groupBy{ 
+       case (sample,score) => classified(sample)}.map{
+       case (klass,samples) => (klass,samples.size)}.toSeq.sortBy(_._2).head._1
 
      return Some(result)
    }

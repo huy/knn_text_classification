@@ -53,7 +53,7 @@ class NaiveBayes[C] {
 
    private def probabilityTermInKlass(term: String, klass: C): Double={
      val klassInfo = allKlassInfo(klass)
-     val freq = if (klassInfo.termFreq.contains(term)) klassInfo.termFreq(term) else 0
+     val freq = klassInfo.termFreq.getOrElse(term,0)
 
      (freq + 1.0)/(klassInfo.nTerms+vocabulary.size)
    }
