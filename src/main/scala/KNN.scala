@@ -14,7 +14,7 @@ class TermVector(doc: Seq[String]){
    private def process(doc: Seq[String]): (Array[String],Array[Int])= {
      var tmp = new mutable.HashMap[String,Int]
      doc.foreach { term => 
-       if( !tmp.contains(term) )
+       if(!tmp.contains(term))
          tmp += (term->0)
        tmp(term) += 1 
      }
@@ -31,6 +31,14 @@ class TermVector(doc: Seq[String]){
 
    private def indexOf(term: String): Int ={
      java.util.Arrays.binarySearch(terms.asInstanceOf[Array[Object]],term)
+   }
+  
+   def tf(term: String): Int = {
+     val pos = indexOf(term)     
+     if(pos >= 0)
+       termFreqs(pos)
+     else
+       0
    }
 
    def length={
@@ -70,9 +78,9 @@ class VectorSpace[DI] {
 
   def docFreq(term: String): Int = {
     if( !allTerms.contains(term) )
-      return 0;
-     
-    allTerms(term).size
+      0
+    else 
+      allTerms(term).size
   }
 
   def docVector(docId: DI): TermVector = {
@@ -83,8 +91,15 @@ class VectorSpace[DI] {
     if (nDocs == docFreq(term)) 
       0.0
     else
-      math.log(nDocs/docFreq(term))
+      math.log(1.0*nDocs/docFreq(term))
   }
+
+  def tfidf(docId: DI, term: String): Double = {
+     if(!allDocs.contains(docId))
+       0 
+     else
+       docVector(docId).tf(term)*idf(term)
+  } 
 
   def consine(one: DI, other: DI): Double = {
     if( !allDocs.contains(one) || !allDocs.contains(other)) 
@@ -94,20 +109,22 @@ class VectorSpace[DI] {
     val v2 = docVector(other)
 
     val result = v1.intersectPos(v2).foldLeft(0.0) {case (sum,(i,j))=>
-      if( v1.terms(i) != v2.terms(j) )
+      if(v1.terms(i) != v2.terms(j))
         throw new RuntimeException("v1.terms(%d) != v2.term(%d)".format(i,j))
 
-      if( v1.termFreqs(i) == 0 )
+      if(v1.termFreqs(i) == 0)
         throw new RuntimeException("v1.termFreqs(%d) == 0".format(i))
 
-      if( v2.termFreqs(j) == 0 )
+      if(v2.termFreqs(j) == 0)
         throw new RuntimeException("v2.termFreqs(%d) == 0".format(j))
 
+      //println("--nDocs=%d,docFreq(%s)=%d".format(nDocs,v1.terms(i),docFreq(v1.terms(i))))
       val tmp = idf(v1.terms(i))
-      if( tmp != 0.0 )
-        sum+v1.termFreqs(i)*tmp*v2.termFreqs(j)*tmp/(v1.length*v2.length)
-      else
-        sum
+      //println("--idf(%s)=%f".format(v1.terms(i),tmp))
+      //println("--v1.termFreqs(%s)=%d".format(v1.terms(i),v1.termFreqs(i)))
+      //println("--v2.termFreqs(%s)=%d".format(v2.terms(j),v2.termFreqs(j)))
+
+      (if(tmp != 0.0) sum+(v1.termFreqs(i)*tmp*v2.termFreqs(j)*tmp)/(v1.length*v2.length) else sum)
     }
 
     return result

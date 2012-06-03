@@ -3,7 +3,7 @@ import org.scalatest.BeforeAndAfter
  
 class VectorSpaceTest extends FunSuite with BeforeAndAfter {
  
-  test("term freqs") {
+  test("TermVector") {
     var vs = new VectorSpace[Int]
     val doc = "car "*27 + "auto "*3 + "best "*14
     vs.add(1,doc.split(" ")) 
@@ -12,7 +12,7 @@ class VectorSpaceTest extends FunSuite with BeforeAndAfter {
     expect(List(3,14,27)){vs.docVector(1).termFreqs.toList }
   }
 
-  test("vector length") {
+  test("TermVector length") {
     var vs = new VectorSpace[Int]
     val doc = "car "*27 + "auto "*3 + "best "*14
     vs.add(1,doc.split(" ")) 
@@ -22,7 +22,7 @@ class VectorSpaceTest extends FunSuite with BeforeAndAfter {
     }
   }
 
-  test("doc freqs and idf"){
+  test("TfIdf"){
     var vs = new VectorSpace[Int]
     val doc1 = "car "*27 + "auto "*3 + "best "*14
     val doc2 = "car "*4  + "auto "*33 + "insurance "*33
@@ -38,8 +38,20 @@ class VectorSpaceTest extends FunSuite with BeforeAndAfter {
       List("auto","best","car","insurance").map{term=>vs.docFreq(term)}
     }
 
-    expect(List(math.log(2/2),math.log(2/1),math.log(2/2),math.log(2/1))) {
+    expect(List(math.log(2.0/2),math.log(2.0/1),math.log(2.0/2),math.log(2.0/1))) {
       List("auto","best","car","insurance").map{term=>vs.idf(term)}
+    }
+
+    expect(List(0,14*math.log(2.0/1),0)){
+      List("auto","best","car").map{term=>
+        vs.tfidf(1,term)
+      }
+    }
+
+    expect(List(0,0,33*math.log(2.0/1))){
+      List("auto","car","insurance").map{term=>
+        vs.tfidf(2,term)
+      }
     }
   }
 
@@ -56,13 +68,19 @@ class VectorSpaceTest extends FunSuite with BeforeAndAfter {
     val v2 = vs.docVector(2)
     val v3 = vs.docVector(3)
 
+    expect(3){
+      vs.nDocs
+    }
+
+    expect(math.log(3.0/2)){
+      vs.idf("auto")
+    }
+
     expect(List((0,0),(2,1))){ 
       v1.intersectPos(v2).toList
     }
 
-    expect(0.0) {
-      vs.consine(1,2)
-    }
+    assert(0.0 != vs.consine(1,2))
     
   }
 }
