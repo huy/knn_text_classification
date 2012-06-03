@@ -21,7 +21,7 @@ class TermVector(doc: Seq[String]){
      var terms = new Array[String](tmp.size)
      var termFreqs = new Array[Int](tmp.size)
      var i = 0
-     tmp.keys.toList.sortWith{_<_}.foreach { term=>
+     tmp.keys.toList.sorted.foreach { term=>
         terms(i) = term
         termFreqs(i) = tmp(term)
         i += 1
@@ -79,31 +79,35 @@ class VectorSpace[DI] {
     allDocs(docId)
   }
 
-  def idf(term: String) = {
-    math.log(nDocs/docFreq(term))
+  def idf(term: String): Double = {
+    if (nDocs == docFreq(term)) 
+      0.0
+    else
+      math.log(nDocs/docFreq(term))
   }
 
   def consine(one: DI, other: DI): Double = {
     if( !allDocs.contains(one) || !allDocs.contains(other)) 
       return 0.0
 
-    val v1 = allDocs(one)
-    val v2 = allDocs(other)
+    val v1 = docVector(one)
+    val v2 = docVector(other)
 
     val result = v1.intersectPos(v2).foldLeft(0.0) {case (sum,(i,j))=>
       if( v1.terms(i) != v2.terms(j) )
-        throw new RuntimeException("v1.terms(i) != v2.term(j)")
+        throw new RuntimeException("v1.terms(%d) != v2.term(%d)".format(i,j))
 
       if( v1.termFreqs(i) == 0 )
-        throw new RuntimeException("v1.termFreqs(i) == 0")
+        throw new RuntimeException("v1.termFreqs(%d) == 0".format(i))
 
       if( v2.termFreqs(j) == 0 )
-        throw new RuntimeException("v2.termFreqs(j) == 0")
+        throw new RuntimeException("v2.termFreqs(%d) == 0".format(j))
 
       val tmp = idf(v1.terms(i))
-      println("-- idf " + v1.terms(i) + " == " + tmp)
-
-      sum+1.0*v1.termFreqs(i)*v2.termFreqs(j)*tmp*tmp/(v1.length*v2.length)
+      if( tmp != 0.0 )
+        sum+v1.termFreqs(i)*tmp*v2.termFreqs(j)*tmp/(v1.length*v2.length)
+      else
+        sum
     }
 
     return result
@@ -126,9 +130,9 @@ class KNN[C,DI](var vectorSpace: VectorSpace[DI]) {
      }
    }
 
-   def apply(test: DI, k: Int) : Option[C] = {
+   def apply(test: DI, k: Int) : C = {
      if(!vectorSpace.allDocs.contains(test))
-       return None
+       throw new RuntimeException("document %s is not in vector space".format(test))
 
      val result = classified.keys.map{ sample=>
        Tuple2(sample,vectorSpace.consine(test,sample))
@@ -136,6 +140,6 @@ class KNN[C,DI](var vectorSpace: VectorSpace[DI]) {
        case (sample,score) => classified(sample)}.map{
        case (klass,samples) => (klass,samples.size)}.toSeq.sortBy(_._2).head._1
 
-     return Some(result)
+     return result
    }
 }

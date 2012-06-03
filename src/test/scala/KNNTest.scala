@@ -34,33 +34,27 @@ class VectorSpaceTest extends FunSuite with BeforeAndAfter {
       vs.nDocs
     }
 
-    expect(2){
-      vs.docFreq("car")
+    expect(List(2,1,2,1)){
+      List("auto","best","car","insurance").map{term=>vs.docFreq(term)}
     }
 
-    expect(1){
-      vs.docFreq("insurance")
+    expect(List(math.log(2/2),math.log(2/1),math.log(2/2),math.log(2/1))) {
+      List("auto","best","car","insurance").map{term=>vs.idf(term)}
     }
-
-    expect(math.log(2/2)) {
-      vs.idf("car")
-    }
-
-    expect(math.log(2/1)) {
-      vs.idf("best")
-    }
-
   }
 
   test("consine distance") {
     var vs = new VectorSpace[Int]
     val doc1 = "car "*27 + "auto "*3 + "best "*14
     val doc2 = "car "*4  + "auto "*33 + "insurance "*33
+    val doc3 = "car "*24 + "insurance "*29 + "best "*17
     vs.add(1,doc1.split(" ")) 
     vs.add(2,doc2.split(" ")) 
+    vs.add(3,doc3.split(" ")) 
 
     val v1 = vs.docVector(1)
     val v2 = vs.docVector(2)
+    val v3 = vs.docVector(3)
 
     expect(List((0,0),(2,1))){ 
       v1.intersectPos(v2).toList
@@ -89,8 +83,8 @@ class KNNTest extends FunSuite with BeforeAndAfter {
     knn.train(1,"car")
     knn.train(2,"insurance")
 
-    //expect(Some("car")){
-    //   knn.apply(3, 2)
-    //}
+    expect("car"){
+       knn.apply(3, 2)
+    }
   }
 }
