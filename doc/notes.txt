@@ -1,0 +1,32 @@
+# Solution for populate synonym's table automatically
+
+**Modeling the problem**
+
+The task is similar to problem of text classification. Text classification is the problem of identifying
+which category a new observed document (aka test document) belongs, on the basis of a training set of data 
+containing documents whose category membership is known.
+
+In our case, a training set is new code table in which each code represents one category, the code's 
+description represents an object of known category - known document. New observed document - unknown document
+is a code of a previouly enriched code table. 
+
+The problem will be solved by using two popular algorithms 
+
+* Multinominal Naive Bayes
+* K-Nearest Neighbor
+
+Both algorithms are implemented using correspondent pseudo code taken from Text Book "Introduction to 
+Information Retrieval" by Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze.
+ 
+**Multinominal Naive Bayes**
+
+In this algorithm we will try to find a known document that is "closest" to a test document then assign the test
+document to the same category of the "closest" known document.
+
+**K-Nearest Neighbor**
+
+In this algorithm we will try to find a K - known documents that are "closest" to a test document then assign the test
+document to the same category of these documents with majority.
+
+
+
