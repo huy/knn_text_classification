@@ -7,7 +7,7 @@ which category a new observed document (aka test document) belongs, on the basis
 containing documents whose category membership is known.
 
 In our case, a training set is new code table in which each code represents one category, the code's 
-description represents an object of known category - known document. New observed document - unknown document
+description represents a document of known category - known document. New observed document - unknown document
 is a code of a previouly enriched code table. 
 
 The problem will be solved by using two popular algorithms 
