@@ -15,18 +15,21 @@ The problem will be solved by using two popular algorithms
 * Multinominal Naive Bayes
 * K-Nearest Neighbor
 
-Both algorithms are implemented using correspondent pseudo code taken from Text Book "Introduction to 
+Both algorithms are implemented using corresponding pseudo code taken from Text Book "Introduction to 
 Information Retrieval" by Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze.
  
 **Multinominal Naive Bayes**
 
-In this algorithm we will try to find a known document that is "closest" to a test document then assign the test
-document to the same category of the "closest" known document.
+In this algorithm we will try to find a category (i.e a code of new table) with maximum P(c|d) - probability of 
+category given a document. 
 
 **K-Nearest Neighbor**
 
-In this algorithm we will try to find a K - known documents that are "closest" to a test document then assign the test
-document to the same category of these documents with majority.
+In K-Nearest Neighbor algorithm we look for a K - known documents (K is predefined parameter) that are "closest" 
+to a test document then assign the test document to the same category of these documents with majority. 
+
+Documents are represented using tf*idf vector space model. The distance between two document is consine similarity 
+of their vectors. Documents are represented using tf*idf vector space model. 
 
 
 
