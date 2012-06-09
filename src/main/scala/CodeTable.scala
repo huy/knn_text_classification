@@ -1,13 +1,18 @@
 import scala.collection._
 import scala.util.matching.Regex
 
-case class CodeInstance(val desc: String, val transfer: String = "", val confidence: Double = 1.0)
+case class CodeInst(val desc: String, val transfer: String = "", val confidence: Double = 1.0)
 
 case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) {
-   var instances = new mutable.ListBuffer[CodeInstance]
+   var instances = new mutable.ListBuffer[CodeInst]
+   def termSeq: Seq[String] = {
+     (desc.split("""\W""").toList ++: 
+      instances.map{z=> z.desc.split("""\W""")}.flatten).filterNot{z=>z.isEmpty}.toList
+   }
 }
 
 object CodeTable {
+
   def parseText(lines: Iterator[String]): mutable.ListBuffer[CodeDef] = {
      var result = new mutable.ListBuffer[CodeDef]
      var lineno = 1
@@ -27,7 +32,7 @@ object CodeTable {
             if(currentDef == null)
               throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
             else
-              currentDef.instances += CodeInstance(synonym)
+              currentDef.instances += CodeInst(synonym)
           }  
           case _ => throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
         }  
