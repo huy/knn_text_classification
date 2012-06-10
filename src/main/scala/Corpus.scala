@@ -42,7 +42,7 @@ class TermVector(doc: Iterable[String]){
      math.sqrt(termFreqs.foldLeft(0){(sum,n) => sum+n*n}) 
    }
 
-   def intersectPos(other: TermVector): Seq[(Int,Int)] = {
+   def intersectPos(other: TermVector): Iterable[(Int,Int)] = {
      var result = new mutable.ListBuffer[(Int,Int)]
      var i = 0
      terms.foreach { term=>
