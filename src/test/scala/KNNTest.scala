@@ -9,9 +9,9 @@ class KNNTest extends FunSuite with BeforeAndAfter {
     val doc2 = "car "*4  + "auto "*33 + "insurance "*33
     val doc3 = "car "*24 + "insurance "*29 + "best "*17
 
-    val docId1 =  corpus.add(doc1.split(" "))
-    val docId2 =  corpus.add(doc2.split(" "))
-    val docId3 =  corpus.add(doc3.split(" "))
+    val docId1 = corpus.add(doc1.split(" "))
+    val docId2 = corpus.add(doc2.split(" "))
+    val docId3 = corpus.add(doc3.split(" "))
 
     val knn = new KNN[String](corpus)
 
