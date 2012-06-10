@@ -6,10 +6,7 @@ from Text Book "Introduction to Information Retrieval" By Christopher D. Manning
 */
 class TermVector(doc: Seq[String]){
 
-   private val pair = process(doc)
-
-   def terms = pair._1
-   def termFreqs = pair._2
+   val (terms,termFreqs) = process(doc)
 
    private def process(doc: Seq[String]): (Array[String],Array[Int])= {
      var tmp = new mutable.HashMap[String,Int]

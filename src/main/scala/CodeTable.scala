@@ -6,25 +6,49 @@ case class CodeInst(val desc: String, val transfer: String = "", val confidence:
 case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) {
    var instances = new mutable.ListBuffer[CodeInst]
 
+   def merge(codeDef: CodeDef) = {
+     instances += CodeInst(codeDef.desc)
+     instances ++: codeDef.instances
+   }
+
    def termSeq: Seq[String] = {
      (desc.split("""\W""").toList ++: 
       instances.map{z=> z.desc.split("""\W""")}.flatten).filterNot{z=>z.isEmpty}.toList
    }
 }
 
-class CodeTable(var knowns: mutable.HashMap[String,CodeDef]){
+class NaiveBayesEnricher(var knowns: mutable.HashMap[String,CodeDef]){
   var classifier = new NaiveBayes[String]
 
-  knowns.values.foreach { codeDef =>
+  knowns.values.foreach {codeDef =>
     classifier.train(codeDef.id,codeDef.termSeq)
   }
 
-  def enrich(unknowns: mutable.ListBuffer[CodeDef]) = {
-    unknowns.foreach { codeDef=>
-      val (id,score) = classifier.apply(codeDef.termSeq) 
-      knowns(id).instances += CodeInst(codeDef.desc)
-      knowns(id).instances ++: codeDef.instances
-    }
+  def enrich(unknown: CodeDef): Unit = {
+    val (id,score) = classifier.apply(unknown.termSeq) 
+    knowns(id).merge(unknown)
+    classifier.train(klass=id, doc=unknown.termSeq)
+  }
+
+  def enrich(unknowns: Seq[CodeDef]): Unit = {
+    unknowns.foreach {z=> enrich(z)}
+  }
+}
+
+class KNNEnricher(var knowns: mutable.HashMap[String,CodeDef], val k:Int = 2) {
+  var corpus = new Corpus[String]
+  var classifier  = new KNN[String,String](corpus)
+ 
+  knowns.values.foreach {codeDef=>
+    corpus.add(docId = codeDef.id, doc = codeDef.termSeq)
+    classifier.train(docId = codeDef.id, klass = codeDef.id)
+  } 
+
+  def enrich(unknown: CodeDef) = {
+    corpus.add(docId = unknown.id, doc = unknown.termSeq)
+
+    val id = classifier.apply(unknown.id,k) 
+    knowns(id).merge(unknown)
   }
 
 }

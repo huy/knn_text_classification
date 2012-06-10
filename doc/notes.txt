@@ -31,5 +31,10 @@ to a test document then assign the test document to the same category of these d
 Documents are represented using tf*idf vector space model. The distance between two document is consine similarity 
 of their vectors. Documents are represented using tf*idf vector space model. 
 
+**Term processing**
+
+In order to use these algorithms, code's description and its synonyms has to be pre-processed by tokenization, 
+removing stop words and steming.
+
 
 
