@@ -4,11 +4,11 @@ import scala.collection._
 Implementation of TermVector that is needed by Vector Space Model inspired by Text Classification Chapter 
 from Text Book "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 */
-class TermVector(doc: Seq[String]){
+class TermVector(doc: Iterable[String]){
 
    val (terms,termFreqs) = process(doc)
 
-   private def process(doc: Seq[String]): (Array[String],Array[Int])= {
+   private def process(doc: Iterable[String]): (Array[String],Array[Int])= {
      var tmp = new mutable.HashMap[String,Int]
      doc.foreach { term => 
        if(!tmp.contains(term))
@@ -65,7 +65,7 @@ class Corpus[DI] {
   var allDocs = new mutable.HashMap[DI,TermVector]
   var nDocs = 0
 
-  def add(docId: DI, doc: Seq[String]) = {
+  def add(docId: DI, doc: Iterable[String]) = {
     if( !allDocs.contains(docId) ){
       allDocs += (docId->new TermVector(doc))
       nDocs += 1
@@ -119,11 +119,7 @@ class Corpus[DI] {
       if(v2.termFreqs(j) == 0)
         throw new RuntimeException("v2.termFreqs(%d) == 0".format(j))
 
-      //println("--nDocs=%d,docFreq(%s)=%d".format(nDocs,v1.terms(i),docFreq(v1.terms(i))))
       val tmp = idf(v1.terms(i))
-      //println("--idf(%s)=%f".format(v1.terms(i),tmp))
-      //println("--v1.termFreqs(%s)=%d".format(v1.terms(i),v1.termFreqs(i)))
-      //println("--v2.termFreqs(%s)=%d".format(v2.terms(j),v2.termFreqs(j)))
 
       (if(tmp != 0.0) sum+(v1.termFreqs(i)*tmp*v2.termFreqs(j)*tmp)/(v1.length*v2.length) else sum)
     }

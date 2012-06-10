@@ -8,12 +8,12 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
 
    def merge(codeDef: CodeDef) = {
      instances += CodeInst(codeDef.desc)
-     instances ++: codeDef.instances
+     instances ++= codeDef.instances
    }
 
-   def termSeq: Seq[String] = {
+   def termSeq: Iterable[String] = {
      (desc.split("""\W""").toList ++: 
-      instances.map{z=> z.desc.split("""\W""")}.flatten).filterNot{z=>z.isEmpty}.toList
+      instances.map{z=> z.desc.split("""\W""")}.flatten).filterNot{z=>z.isEmpty}
    }
 }
 
@@ -24,13 +24,13 @@ class CodeTable {
 
   def codeDef(id: String) : CodeDef = allCodeDefs(id)
 
-  def codeDefSeq : Iterator[CodeDef] = allCodeDefs.values.iterator
+  def codeDefSeq : Iterable[CodeDef] = allCodeDefs.values
 
   def size = allCodeDefs.size
 
-  def toText: Iterator[String] = {
+  def toText: Iterable[String] = {
     allCodeDefs.values.map{d => "%s\t%s".format(d.id,d.desc) +: 
-      d.instances.map{s => "-\t%s".format(s.desc)}}.flatten.iterator
+      d.instances.map{s => "-\t%s".format(s.desc)}}.flatten
   }
 }
 

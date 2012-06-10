@@ -18,7 +18,7 @@ class CodeTableTest extends FunSuite {
        codeTable.codeDef("177").instances.last }
   }
 
-  test("termSeq of CodeDef") {
+  test("termSeq of codeDef") {
      var codeDef = CodeDef(id="428",desc="BD Executive/Manager")
      codeDef.instances += CodeInst("business development manager")
      codeDef.instances += CodeInst("manager of planning and reporting")
@@ -27,6 +27,20 @@ class CodeTableTest extends FunSuite {
                  "business","development","manager",
                  "manager","of","planning","and","reporting")) {
        codeDef.termSeq
+     }
+  }
+
+  test("merge 2 codeDefs") {
+     var one = CodeDef(id="242",desc="Manager")
+     var other = CodeDef(id="261",desc="Sales Manager")
+     other.instances += CodeInst("sales & marketing manager")
+     one.merge(other)
+
+     expect(2) {
+       one.instances.size
+     } 
+     expect(List(CodeInst("Sales Manager"),CodeInst("sales & marketing manager"))){
+       one.instances
      }
   }
 
