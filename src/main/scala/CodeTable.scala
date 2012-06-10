@@ -17,21 +17,21 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
    }
 }
 
-class CodeTable(codeDefSeq: Seq[CodeDef]) {
+class CodeTable {
+  private var allCodeDefs = new mutable.HashMap[String,CodeDef]
 
-  private var allCodeDefs = new mutable.HashMap[CodeDef]
-  codeDefSeq.foreach { z=>
-    allCodeDefs += (z.id->z)
-  }
+  def add(codeDef: CodeDef) = allCodeDefs += (codeDef.id->codeDef)
 
-  def codeDef(id: String) : CodeDef = {
-    allCodeDefs(id)
-  } 
+  def codeDef(id: String) : CodeDef = allCodeDefs(id)
 
-  def codeDefSeq : Seq[CodeDef] = allCodeDefs.values
+  def codeDefSeq : Iterator[CodeDef] = allCodeDefs.values.iterator
 
   def size = allCodeDefs.size
 
+  def toText: Iterator[String] = {
+    allCodeDefs.values.map{d => "%s\t%s".format(d.id,d.desc) +: 
+      d.instances.map{s => "-\t%s".format(s.desc)}}.flatten.iterator
+  }
 }
 
 class NaiveBayesEnricher(var codeTable: CodeTable){
@@ -69,18 +69,18 @@ class KNNEnricher(var codeTable: CodeTable, val k:Int = 2) {
 object CodeTable {
 
   def parseText(lines: Iterator[String]): CodeTable = {
-     var result = new mutable.ListBuffer[CodeDef]
-     var lineno = 1
-  
      val startDef = new Regex("""(\w+)\s+(.+)""")
      val continueDef = new Regex("""-\s+(.+)""")
+  
+     var result = new CodeTable
+     var lineno = 1
      var currentDef: CodeDef = null
   
      lines.foreach { z =>
        z match {
          case startDef(code,desc) => { 
            if(currentDef != null)
-             result += currentDef
+             result.add(currentDef)
            currentDef = CodeDef(id = code, desc = desc)
          }
          case continueDef(synonym) => {
@@ -93,8 +93,8 @@ object CodeTable {
        }  
        lineno += 1 
      }
-     if(currentDef!=null) result+=currentDef
+     if(currentDef!=null) result.add(currentDef)
 
-     new CodeTable(result)
+     result
    }
 }

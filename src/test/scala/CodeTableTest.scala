@@ -11,7 +11,7 @@ class CodeTableTest extends FunSuite {
      )
      expect(1) { codeTable.size }
      expect(CodeDef(id="177",desc="Administrator")) { 
-       codeTables.codeDef("177") }
+       codeTable.codeDef("177") }
      expect(3) { 
        codeTable.codeDef("177").instances.size }
      expect(CodeInst(desc="administration manager")) { 
@@ -28,6 +28,19 @@ class CodeTableTest extends FunSuite {
                  "manager","of","planning","and","reporting")) {
        codeDef.termSeq
      }
+  }
+
+  test("to ascii text"){
+    val codeDef = new CodeDef(id="428",desc="BD Executive/Manager")
+    codeDef.instances += CodeInst("business development manager")
+    codeDef.instances += CodeInst("manager of planning and reporting")
+
+    var codeTable = new CodeTable()
+    codeTable.add(codeDef)
+
+    expect("428\tBD Executive/Manager\n-\tbusiness development manager\n-\tmanager of planning and reporting"){
+      codeTable.toText.mkString("\n")
+    }
   }
  
 }
