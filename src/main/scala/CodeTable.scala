@@ -38,30 +38,30 @@ class NaiveBayesEnricher(var codeTable: CodeTable){
   var classifier = new NaiveBayes[String]
 
   codeTable.codeDefSeq.foreach {codeDef =>
-    classifier.train(codeDef.id,codeDef.termSeq)
+    classifier.train(klass = codeDef.id, doc = codeDef.termSeq)
   }
 
   def enrich(unknown: CodeDef): Unit = {
     val (id,score) = classifier.apply(unknown.termSeq) 
     codeTable.codeDef(id).merge(unknown)
-    classifier.train(klass=id, doc=unknown.termSeq)
+    classifier.train(klass = id, doc = unknown.termSeq)
   }
 }
 
 class KNNEnricher(var codeTable: CodeTable, val k:Int = 2) {
-  var corpus = new Corpus[String]
-  var classifier  = new KNN[String,String](corpus)
+  var corpus = new Corpus
+  var classifier  = new KNN[String](corpus)
  
   codeTable.codeDefSeq.foreach {codeDef=>
-    corpus.add(docId = codeDef.id, doc = codeDef.termSeq)
-    classifier.train(docId = codeDef.id, klass = codeDef.id)
+    val docId = corpus.add(codeDef.termSeq)
+    classifier.train(klass = codeDef.id, docId = docId)
   } 
 
-  def enrich(unknown: CodeDef): Unit = {
-    corpus.add(docId = unknown.id, doc = unknown.termSeq)
+  def enrich(codeDef: CodeDef): Unit = {
+    val docId = corpus.add(codeDef.termSeq)
 
-    val id = classifier.apply(unknown.id,k) 
-    codeTable.codeDef(id).merge(unknown)
+    val id = classifier.apply(docId,k) 
+    codeTable.codeDef(id).merge(codeDef)
   }
 
 }

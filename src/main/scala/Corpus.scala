@@ -59,22 +59,22 @@ class TermVector(doc: Iterable[String]){
 Implementation of Document Corpus that is needed by Vector Space Model inspired by Text Classification Chapter 
 from Text Book "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 */
-class Corpus[DI] {
+class Corpus {
 
-  var allTerms = new mutable.HashMap[String,mutable.HashSet[DI]]
-  var allDocs = new mutable.HashMap[DI,TermVector]
+  var allTerms = new mutable.HashMap[String,mutable.HashSet[Int]]
+  var allDocs = new mutable.HashMap[Int,TermVector]
   var nDocs = 0
 
-  def add(docId: DI, doc: Iterable[String]) = {
-    if( !allDocs.contains(docId) ){
-      allDocs += (docId->new TermVector(doc))
-      nDocs += 1
-      doc.foreach{ term=>
-        if( !allTerms.contains(term) )
-          allTerms += (term->new mutable.HashSet[DI])
-        allTerms(term) += docId
-      }
+  def add(doc: Iterable[String]) : Int = {
+    val docId = nDocs
+    allDocs += (docId->new TermVector(doc))
+    nDocs += 1
+    doc.foreach{ term=>
+      if( !allTerms.contains(term) )
+        allTerms += (term->new mutable.HashSet[Int])
+      allTerms(term) += docId
     }
+    return docId
   }
 
   def docFreq(term: String): Int = {
@@ -84,7 +84,7 @@ class Corpus[DI] {
       allTerms(term).size
   }
 
-  def docVector(docId: DI): TermVector = {
+  def docVector(docId: Int): TermVector = {
     allDocs(docId)
   }
 
@@ -95,14 +95,14 @@ class Corpus[DI] {
       math.log(1.0*nDocs/docFreq(term))
   }
 
-  def tfidf(docId: DI, term: String): Double = {
+  def tfidf(docId: Int, term: String): Double = {
      if(!allDocs.contains(docId))
        0 
      else
        docVector(docId).tf(term)*idf(term)
   } 
 
-  def consine(one: DI, other: DI): Double = {
+  def consine(one: Int, other: Int): Double = {
     if( !allDocs.contains(one) || !allDocs.contains(other)) 
       return 0.0
 
