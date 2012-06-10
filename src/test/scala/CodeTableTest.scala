@@ -10,9 +10,12 @@ class CodeTableTest extends FunSuite {
 -       administration manager""".linesIterator
      )
      expect(1) { codeTable.size }
-     expect(CodeDef(id="177",desc="Administrator")) { codeTable(0) }
-     expect(3) { codeTable(0).instances.size }
-     expect(CodeInst(desc="administration manager")) { codeTable(0).instances.last }
+     expect(CodeDef(id="177",desc="Administrator")) { 
+       codeTables.codeDef("177") }
+     expect(3) { 
+       codeTable.codeDef("177").instances.size }
+     expect(CodeInst(desc="administration manager")) { 
+       codeTable.codeDef("177").instances.last }
   }
 
   test("termSeq of CodeDef") {
