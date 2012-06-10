@@ -29,10 +29,6 @@ class NaiveBayesEnricher(var knowns: mutable.HashMap[String,CodeDef]){
     knowns(id).merge(unknown)
     classifier.train(klass=id, doc=unknown.termSeq)
   }
-
-  def enrich(unknowns: Seq[CodeDef]): Unit = {
-    unknowns.foreach {z=> enrich(z)}
-  }
 }
 
 class KNNEnricher(var knowns: mutable.HashMap[String,CodeDef], val k:Int = 2) {
@@ -44,7 +40,7 @@ class KNNEnricher(var knowns: mutable.HashMap[String,CodeDef], val k:Int = 2) {
     classifier.train(docId = codeDef.id, klass = codeDef.id)
   } 
 
-  def enrich(unknown: CodeDef) = {
+  def enrich(unknown: CodeDef): Unit = {
     corpus.add(docId = unknown.id, doc = unknown.termSeq)
 
     val id = classifier.apply(unknown.id,k) 
