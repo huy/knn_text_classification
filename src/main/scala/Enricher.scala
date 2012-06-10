@@ -5,10 +5,10 @@ class NaiveBayesEnricher(var codeTable: CodeTable){
     classifier.train(klass = codeDef.id, doc = codeDef.termSeq)
   }
 
-  def enrich(unknown: CodeDef): Unit = {
-    val (id,score) = classifier.apply(unknown.termSeq)
-    codeTable.codeDef(id).merge(unknown)
-    classifier.train(klass = id, doc = unknown.termSeq)
+  def enrich(codeDef: CodeDef): Unit = {
+    val (id,score) = classifier.apply(codeDef.termSeq)
+    codeTable.codeDef(id).merge(codeDef)
+    classifier.train(klass = id, doc = codeDef.termSeq)
   }
 }
 
