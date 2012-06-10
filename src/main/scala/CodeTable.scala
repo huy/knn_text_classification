@@ -5,10 +5,28 @@ case class CodeInst(val desc: String, val transfer: String = "", val confidence:
 
 case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) {
    var instances = new mutable.ListBuffer[CodeInst]
+
    def termSeq: Seq[String] = {
      (desc.split("""\W""").toList ++: 
       instances.map{z=> z.desc.split("""\W""")}.flatten).filterNot{z=>z.isEmpty}.toList
    }
+}
+
+class CodeTable(var knowns: mutable.HashMap[String,CodeDef]){
+  var classifier = new NaiveBayes[String]
+
+  knowns.values.foreach { codeDef =>
+    classifier.train(codeDef.id,codeDef.termSeq)
+  }
+
+  def enrich(unknowns: mutable.ListBuffer[CodeDef]) = {
+    unknowns.foreach { codeDef=>
+      val (id,score) = classifier.apply(codeDef.termSeq) 
+      knowns(id).instances += CodeInst(codeDef.desc)
+      knowns(id).instances ++: codeDef.instances
+    }
+  }
+
 }
 
 object CodeTable {

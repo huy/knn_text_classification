@@ -1,6 +1,6 @@
 import org.scalatest.FunSuite
  
-class CodeTableParserTest extends FunSuite {
+class CodeTableTest extends FunSuite {
  
   test("parse ascii text") {
      val codeTable = CodeTable.parseText(
