@@ -12,8 +12,11 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
    }
 
    def termSeq: Iterable[String] = {
-     (desc.split("""\W""").toList ++: 
-      instances.map{z=> z.desc.split("""\W""")}.flatten).filterNot{z=>z.isEmpty}
+     (desc.split("""\W""").toList ++: instances.map{z=> z.desc.split("""\W""")}.flatten).
+       filterNot{z=>z.isEmpty}.map{z=> 
+          val up = z.toUpperCase
+          if( up == z ) z else z.toLowerCase 
+       }
    }
 }
 

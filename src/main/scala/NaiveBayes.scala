@@ -62,7 +62,7 @@ class NaiveBayes[C] {
      val klassInfo = allKlassInfo(klass)
      val probabilityDocGivenKlass = (klassInfo.nDocs + 0.0)/nDocs
 
-     val result = doc.foldLeft(math.log(probabilityDocGivenKlass)){ (sum,t) => 
+     val result = doc.foldLeft(math.log(probabilityDocGivenKlass)){(sum,t) => 
         sum + math.log(probabilityTermGivenKlass(t,klass))
      }
 
