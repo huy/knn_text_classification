@@ -14,19 +14,19 @@ class NaiveBayesEnricher(var codeTable: CodeTable){
 
 class KNNEnricher(var codeTable: CodeTable, val k:Int = 2) {
   var corpus = new Corpus
-  var classifier  = new KNN[String](corpus)
+  var classifier  = new KNN[String](corpus.cosine)
 
   codeTable.codeDefSeq.foreach {codeDef=>
     val docId = corpus.add(codeDef.termSeq)
-    classifier.train(klass = codeDef.id, docId = docId)
+    classifier.train(klass = codeDef.id, sample = docId)
   }
 
   def enrich(codeDef: CodeDef): Unit = {
     val docId = corpus.add(codeDef.termSeq)
 
-    val id = classifier.apply(docId,k)
+    val id = classifier.apply(test=docId,k=k)
     codeTable.codeDef(id).merge(codeDef)
-    classifier.train(klass = id, docId = docId)
+    classifier.train(klass = id, sample = docId)
   }
 
 }

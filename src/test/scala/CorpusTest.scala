@@ -64,7 +64,7 @@ class CorpusTest extends FunSuite with BeforeAndAfter {
     }
   }
 
-  test("consine distance") {
+  test("cosine distance") {
     var corpus = new Corpus
     val doc1 = "car "*27 + "auto "*3 + "best "*14
     val doc2 = "car "*4  + "auto "*33 + "insurance "*33
@@ -89,7 +89,7 @@ class CorpusTest extends FunSuite with BeforeAndAfter {
       v1.intersectPos(v2).toList
     }
 
-    assert(0.0 != corpus.consine(1,2))
+    assert(0.0 != corpus.cosine(1,2))
     
   }
 }

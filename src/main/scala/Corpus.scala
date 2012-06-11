@@ -102,7 +102,7 @@ class Corpus {
        docVector(docId).tf(term)*idf(term)
   } 
 
-  def consine(one: Int, other: Int): Double = {
+  def cosine(one: Int, other: Int): Double = {
     if( !allDocs.contains(one) || !allDocs.contains(other)) 
       return 0.0
 
