@@ -4,6 +4,7 @@ import scala.util.matching.Regex
 case class CodeInst(val desc: String, val transfer: String = "", val confidence: Double = 1.0)
 
 case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) {
+
    var instances = new mutable.ListBuffer[CodeInst]
 
    def merge(codeDef: CodeDef) = {

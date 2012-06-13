@@ -1,7 +1,11 @@
 import scala.io._
 import java.io._
 
-class NaiveBayesEnricher(var codeTable: CodeTable){
+abstract class Enricher(var codeTable: CodeTable) {
+  def enrich(codeDef: CodeDef): Unit
+}
+
+class NaiveBayesEnricher(codeTable: CodeTable) extends Enricher(codeTable){
   var classifier = new NaiveBayes[String]
 
   codeTable.codeDefSeq.foreach {codeDef =>
@@ -15,7 +19,7 @@ class NaiveBayesEnricher(var codeTable: CodeTable){
   }
 }
 
-class KNNEnricher(var codeTable: CodeTable, val k:Int = 2) {
+class KNNEnricher(codeTable: CodeTable, val k:Int = 2) extends Enricher(codeTable){
   var corpus = new Corpus
   var classifier  = new KNN[String](distance = corpus.cosine)
 
@@ -36,31 +40,33 @@ class KNNEnricher(var codeTable: CodeTable, val k:Int = 2) {
 
 object Enricher {
   val dataDir = "/Users/huy/github/text_classification/src/test/data"
-  val newTabFileBefore = "%s/sample.txt".format(dataDir)
-  val newTabFileByNB = "%s/sample_nb.txt".format(dataDir)
-  val newTabFileByKNN = "%s/sample_knn.txt".format(dataDir)
-  val existingTabFile = "%s/test.txt".format(dataDir)
+  val sample = "%s/sample.txt".format(dataDir)
+  val sampleNB = "%s/sample_nb.txt".format(dataDir)
+  val sampleKNN = "%s/sample_knn.txt".format(dataDir)
+
+  val tab = CodeTable.parseText(io.Source.fromFile(sample).getLines)
 
   def main(args: Array[String]) {
-    var tabNB = CodeTable.parseText(io.Source.fromFile(newTabFileBefore).getLines)
-    var tabKNN = CodeTable.parseText(io.Source.fromFile(newTabFileBefore).getLines)
 
-    val existingTab = CodeTable.parseText(io.Source.fromFile(existingTabFile).getLines)
+    var algo : Enricher = null
 
-    var nb = new NaiveBayesEnricher(tabNB)   
-    var knn = new KNNEnricher(tabKNN,3)   
-
-    existingTab.codeDefSeq.foreach { test =>
-      nb.enrich(test) 
-      knn.enrich(test)
+    if(args.exists{z => z == "--nb"}){
+      println("--nb")
+      algo =  new NaiveBayesEnricher(CodeTable.parseText(Source.fromFile(sample).getLines))
+    }
+    else{
+      println("--knn")
+      algo =  new KNNEnricher(CodeTable.parseText(Source.fromFile(sample).getLines),3)
     }
 
-    val outNB = new PrintWriter(newTabFileByNB)
-    tabNB.toText.foreach {outNB.println}
-    outNB.close
+    CodeTable.parseText("""177     Administrator
+-       office administrator
+-       sales administrator
+-       administration manager""".linesIterator).codeDefSeq.foreach{ test =>
+      algo.enrich(test)
+    }
 
-    val outKNN = new PrintWriter(newTabFileByKNN)
-    tabKNN.toText.foreach {outKNN.println}
-    outKNN.close
+    algo.codeTable.toText.foreach {println}
+
   }
 }
