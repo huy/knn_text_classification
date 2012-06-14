@@ -11,7 +11,7 @@ class KNN[C](distance:(Int,Int)=>Double, debug: Boolean = false) {
      classified += sample->klass
    }
 
-   def apply(test: Int, k: Int) : C = {
+   def apply(test: Int, k: Int) : Option[C] = {
      val scorePerSample = classified.keys.map{sample=> Tuple2(sample,distance(test, sample))
        }.toList.sortBy(_._2)
      
@@ -29,7 +29,9 @@ class KNN[C](distance:(Int,Int)=>Double, debug: Boolean = false) {
      if(debug)
        println("--score per class:\n%s".format(scorePerKlass))
  
-     return scorePerKlass.last._1
+     if(scorePerKlass.forall{case(klass,score) => score == 0.0})
+       None
+     else
+       Some(scorePerKlass.last._1)
    }
-   
 }

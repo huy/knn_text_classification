@@ -13,8 +13,8 @@ class NaiveBayesTest extends FunSuite {
      }
      // println(nb.info)
 
-     expect("china") { nb.apply("Chinese Chinese Chinese Tokyo Japan".split(" "))._1 }
-     expect("other") { nb.apply("Tokyo Japan".split(" "))._1 }
+     expect("china") { nb.apply("Chinese Chinese Chinese Tokyo Japan".split(" ")).get}
+     expect("other") { nb.apply("Tokyo Japan".split(" ")).get}
   }
  
 }

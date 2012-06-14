@@ -19,7 +19,7 @@ class KNNTest extends FunSuite with BeforeAndAfter {
     knn.train(sample = docId2, klass = "insurance")
 
     expect("insurance"){
-       knn.apply(test = docId3, k=2)
+       knn.apply(test = docId3, k=2).get
     }
   }
 }

@@ -45,13 +45,13 @@ class NaiveBayes[C](debug: Boolean = false) {
      }
    }
 
-   def apply(doc: Iterable[String]): (C,Double) = {
+   def apply(doc: Iterable[String]): Option[C] = {
      val scorePerKlass = allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}
 
      if(debug )
        println("-- scorePerKlass:\n%s".format(scorePerKlass))
 
-     scorePerKlass.maxBy{_._2}
+     Some(scorePerKlass.maxBy{_._2}._1)
    }
 
    private def probabilityTermGivenKlass(term: String, klass: C): Double={

@@ -13,9 +13,16 @@ class NaiveBayesEnricher(codeTable: CodeTable, debug: Boolean = false) extends E
   }
 
   def enrich(codeDef: CodeDef): Unit = {
-    val (id,score) = classifier.apply(codeDef.termSeq)
-    codeTable.codeDef(id).merge(codeDef)
-    classifier.train(klass = id, doc = codeDef.termSeq)
+    classifier.apply(codeDef.termSeq) match {
+      case Some(id) => {
+        codeTable.codeDef(id).merge(codeDef)
+        classifier.train(klass = id, doc = codeDef.termSeq)
+      }
+      case None => {
+        codeTable.add(codeDef)
+        classifier.train(klass = codeDef.id, doc = codeDef.termSeq)
+      }
+    }
   }
 }
 
@@ -33,11 +40,17 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
   def enrich(codeDef: CodeDef): Unit = {
     val docId = corpus.add(codeDef.termSeq)
 
-    val id = classifier.apply(test = docId, k = k)
-    codeTable.codeDef(id).merge(codeDef)
-    classifier.train(klass = id, sample = docId)
+    classifier.apply(test = docId, k = k) match {
+      case Some(id) => {
+        codeTable.codeDef(id).merge(codeDef)
+        classifier.train(klass = id, sample = docId)
+      }
+      case None => {
+        codeTable.add(codeDef)
+        classifier.train(klass = codeDef.id, sample = docId)
+      }
+    }
   }
-
 }
 
 object Enricher {
