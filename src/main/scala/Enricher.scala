@@ -26,6 +26,7 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2) extends Enricher(codeTabl
 
   codeTable.codeDefSeq.foreach {codeDef=>
     val docId = corpus.add(codeDef.termSeq)
+    println("--- docId %d : %s".format(docId,codeDef.desc))
     classifier.train(klass = codeDef.id, sample = docId)
   }
 
