@@ -4,7 +4,7 @@ import scala.collection._
 Implements Multinominal Naive Bayes text classiﬁcation algorithm from Text Book
 "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 **/
-class NaiveBayes[C] {
+class NaiveBayes[C](debug: Boolean = false) {
    case class KlassInfo(var nDocs: Int, var nTerms: Int, var termFreq: mutable.Map[String,Int])
 
    var allKlassInfo = new mutable.HashMap[C,KlassInfo]
@@ -46,9 +46,12 @@ class NaiveBayes[C] {
    }
 
    def apply(doc: Iterable[String]): (C,Double) = {
-     val str = doc.reduceLeft[String]{(acc,t) => acc+ " " + t }
+     val scorePerKlass = allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}
 
-     allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}.maxBy{_._2}
+     if(debug )
+       println("-- scorePerKlass:\n%s".format(scorePerKlass))
+
+     scorePerKlass.maxBy{_._2}
    }
 
    private def probabilityTermGivenKlass(term: String, klass: C): Double={

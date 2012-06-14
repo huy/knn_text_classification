@@ -1,13 +1,12 @@
-import scala.io._
-import java.io._
+import scala.io.Source
 import scala.util.matching.Regex
 
-abstract class Enricher(var codeTable: CodeTable) {
+abstract class Enricher(var codeTable: CodeTable, val debug: Boolean = false) {
   def enrich(codeDef: CodeDef): Unit
 }
 
-class NaiveBayesEnricher(codeTable: CodeTable) extends Enricher(codeTable){
-  var classifier = new NaiveBayes[String]
+class NaiveBayesEnricher(codeTable: CodeTable, debug: Boolean = false) extends Enricher(codeTable,debug){
+  var classifier = new NaiveBayes[String](debug)
 
   codeTable.codeDefSeq.foreach {codeDef =>
     classifier.train(klass = codeDef.id, doc = codeDef.termSeq)
@@ -20,13 +19,14 @@ class NaiveBayesEnricher(codeTable: CodeTable) extends Enricher(codeTable){
   }
 }
 
-class KNNEnricher(codeTable: CodeTable, val k:Int = 2) extends Enricher(codeTable){
+class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) extends Enricher(codeTable,debug){
   var corpus = new Corpus
-  var classifier  = new KNN[String](distance = corpus.cosine)
+  var classifier  = new KNN[String](distance = corpus.cosine, debug = debug)
 
   codeTable.codeDefSeq.foreach {codeDef=>
     val docId = corpus.add(codeDef.termSeq)
-    println("--- docId %d : %s".format(docId,codeDef.desc))
+    if(debug)
+      println("--- docId %d : %s".format(docId,codeDef.desc))
     classifier.train(klass = codeDef.id, sample = docId)
   }
 
@@ -51,13 +51,15 @@ object Enricher {
 
     var algo : Enricher = null
 
+    val debug = args.exists{z => z == "--debug"}
+
     if(args.exists{z => z == "--nb"}){
       println("--nb")
-      algo =  new NaiveBayesEnricher(CodeTable.parseText(Source.fromFile(sampleFile).getLines))
+      algo = new NaiveBayesEnricher(codeTable = CodeTable.parseTextFile(sampleFile), debug = debug)
     }
     else{
       println("--knn")
-      algo =  new KNNEnricher(CodeTable.parseText(Source.fromFile(sampleFile).getLines),3)
+      algo =  new KNNEnricher(codeTable = CodeTable.parseTextFile(sampleFile), k = 3, debug = debug)
     }
     
     val testIdArg = new Regex("""--testId=(\w+)""")

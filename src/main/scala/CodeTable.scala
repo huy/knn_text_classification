@@ -1,5 +1,6 @@
 import scala.collection._
 import scala.util.matching.Regex
+import scala.io.Source
 
 case class CodeInst(val desc: String, val transfer: String = "", val confidence: Double = 1.0)
 
@@ -69,5 +70,9 @@ object CodeTable {
      if(currentDef!=null) result.add(currentDef)
 
      result
+   }
+
+   def parseTextFile(fileName: String): CodeTable = {
+      parseText(Source.fromFile(fileName).getLines)     
    }
 }
