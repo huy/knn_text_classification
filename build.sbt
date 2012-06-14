@@ -1,4 +1,4 @@
-name := "bayes"
+name := "text_classification"
 
 version := "1.0"
 
@@ -9,3 +9,12 @@ libraryDependencies ++= Seq(
 )
 
 scalacOptions += "-deprecation"
+
+seq(ProguardPlugin.proguardSettings :_*)
+
+proguardOptions += keepMain("Enricher")
+
+proguardOptions ++= Seq(
+  keepMain("Enricher"),
+  keepAllScala
+)
