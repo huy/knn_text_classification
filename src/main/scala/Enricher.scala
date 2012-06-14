@@ -1,5 +1,6 @@
 import scala.io._
 import java.io._
+import scala.util.matching.Regex
 
 abstract class Enricher(var codeTable: CodeTable) {
   def enrich(codeDef: CodeDef): Unit
@@ -40,11 +41,10 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2) extends Enricher(codeTabl
 
 object Enricher {
   val dataDir = "/Users/huy/github/text_classification/src/test/data"
-  val sample = "%s/sample.txt".format(dataDir)
-  val sampleNB = "%s/sample_nb.txt".format(dataDir)
-  val sampleKNN = "%s/sample_knn.txt".format(dataDir)
+  val sampleFile = "%s/sample.txt".format(dataDir)
+  val testFile = "%s/test.txt".format(dataDir)
 
-  val tab = CodeTable.parseText(io.Source.fromFile(sample).getLines)
+  val testTab = CodeTable.parseText(Source.fromFile(testFile).getLines)
 
   def main(args: Array[String]) {
 
@@ -52,21 +52,27 @@ object Enricher {
 
     if(args.exists{z => z == "--nb"}){
       println("--nb")
-      algo =  new NaiveBayesEnricher(CodeTable.parseText(Source.fromFile(sample).getLines))
+      algo =  new NaiveBayesEnricher(CodeTable.parseText(Source.fromFile(sampleFile).getLines))
     }
     else{
       println("--knn")
-      algo =  new KNNEnricher(CodeTable.parseText(Source.fromFile(sample).getLines),3)
+      algo =  new KNNEnricher(CodeTable.parseText(Source.fromFile(sampleFile).getLines),3)
     }
-
-    CodeTable.parseText("""177     Administrator
--       office administrator
--       sales administrator
--       administration manager""".linesIterator).codeDefSeq.foreach{ test =>
-      algo.enrich(test)
+    
+    val testIdArg = new Regex("""--testId=(\w+)""")
+    args.foreach { a=>
+      a match {
+        case testIdArg(testId) => {
+          testTab.getCodeDef(testId) match {
+            case Some(codeDef) => {
+              algo.enrich(codeDef)
+              algo.codeTable.toText.foreach {println}
+            }
+            case _ => println("%s does not exists in %s".format(testId,testFile))
+          }
+        }
+        case _ =>
+      }
     }
-
-    algo.codeTable.toText.foreach {println}
-
   }
 }

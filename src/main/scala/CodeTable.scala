@@ -26,7 +26,8 @@ class CodeTable {
 
   def add(codeDef: CodeDef) = allCodeDefs += (codeDef.id->codeDef)
 
-  def codeDef(id: String) : CodeDef = allCodeDefs(id)
+  def codeDef(id: String): CodeDef = allCodeDefs(id)
+  def getCodeDef(id: String): Option[CodeDef] = allCodeDefs.get(id)
 
   def codeDefSeq : Iterable[CodeDef] = allCodeDefs.values
 
