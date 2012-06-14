@@ -1,4 +1,5 @@
 import scala.io.Source
+import scala.collection._
 import scala.util.matching.Regex
 
 abstract class Enricher(var codeTable: CodeTable, val debug: Boolean = false) {
@@ -30,12 +31,16 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
   var corpus = new Corpus
   var classifier  = new KNN[String](distance = corpus.cosine, debug = debug)
 
+  private var debugInfo = new mutable.ListBuffer[(Int,String)]
+
   codeTable.codeDefSeq.foreach {codeDef=>
     val docId = corpus.add(codeDef.termSeq)
     if(debug)
-      println("--- docId %d : %s".format(docId,codeDef.desc))
+      debugInfo += Tuple2(docId,codeDef.desc)
     classifier.train(klass = codeDef.id, sample = docId)
   }
+  if(debug)
+    println("--docId2Code:\n%s".format(debugInfo))
 
   def enrich(codeDef: CodeDef): Unit = {
     val docId = corpus.add(codeDef.termSeq)
