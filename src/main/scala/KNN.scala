@@ -12,22 +12,23 @@ class KNN[C](distance:(Int,Int)=>Double) {
    }
 
    def apply(test: Int, k: Int) : C = {
-     val sortedByScore = classified.keys.map{sample=> Tuple2(sample,distance(test, sample))
+     val scorePerSample = classified.keys.map{sample=> Tuple2(sample,distance(test, sample))
        }.toList.sortBy(_._2)
      
-     println("--scores")
-     println(sortedByScore) 
+     println("--score per sample")
+     println(scorePerSample) 
 
-     val topK = sortedByScore.takeRight(k)
+     val topK = scorePerSample.takeRight(k)
      println("--topK")
      println(topK)
       
-     val groupByKlass = topK.groupBy{case (sample,score) => classified(sample)
-       }.map{case (klass,samples) => (klass,samples.size)}.toSeq.sortBy(_._2)
+     val scorePerKlass = topK.groupBy{case (sample,score) => classified(sample)
+       }.map{case (klass,samples) => (klass,samples.foldLeft(0.0){(sum,s) => sum + s._2})}.toSeq.sortBy(_._2)
 
-     println("--mayority vote")
-     println(groupByKlass)
+     println("--score per class")
+     println(scorePerKlass)
  
-     return groupByKlass.head._1
+     return scorePerKlass.last._1
    }
+   
 }
