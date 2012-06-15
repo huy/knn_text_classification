@@ -1,4 +1,4 @@
-import scala.collection._
+import scala.collection.mutable.{ListBuffer,HashMap}
 import scala.util.matching.Regex
 import scala.io.Source
 
@@ -14,7 +14,7 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
     "they", "this", "to", "was", "will", "with"
    )
   
-   var instances = new mutable.ListBuffer[CodeInst]
+   var instances = new ListBuffer[CodeInst]
 
    def merge(codeDef: CodeDef) = {
      instances += CodeInst(codeDef.desc)
@@ -24,12 +24,12 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
    def termSeq: Iterable[String] = {
      (desc.split("""\W""").toList ++: instances.map{z=> z.desc.split("""\W""")}.flatten).
      map{z=> if(z.toUpperCase == z) z else z.toLowerCase}.
-     filterNot{z => z.isEmpty or stopWords.contain(z)}
+     filterNot{z => z.isEmpty || stopWords.contains(z)}
    }
 }
 
 class CodeTable {
-  private var allCodeDefs = new mutable.HashMap[String,CodeDef]
+  private var allCodeDefs = new HashMap[String,CodeDef]
 
   def add(codeDef: CodeDef) = allCodeDefs += (codeDef.id->codeDef)
 

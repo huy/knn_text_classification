@@ -1,5 +1,5 @@
 import scala.io.Source
-import scala.collection._
+import scala.collection.mutable.{ListBuffer,HashMap}
 import scala.util.matching.Regex
 
 abstract class Enricher(var codeTable: CodeTable, val debug: Boolean = false) {
@@ -31,7 +31,7 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
   var corpus = new Corpus
   var classifier  = new KNN[String](distance = corpus.cosine, debug = debug)
 
-  private var debugInfo = new mutable.ListBuffer[(Int,String)]
+  private var debugInfo = new ListBuffer[(Int,String)]
 
   codeTable.codeDefSeq.foreach {codeDef=>
     val docId = corpus.add(codeDef.termSeq)

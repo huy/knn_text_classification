@@ -1,4 +1,4 @@
-import scala.collection._
+import scala.collection.mutable.{ListBuffer,HashMap,HashSet}
 
 /* 
 Implementation of TermVector that is needed by Vector Space Model inspired by Text Classification Chapter 
@@ -9,7 +9,7 @@ class TermVector(doc: Iterable[String]){
    val (terms,termFreqs) = process(doc)
 
    private def process(doc: Iterable[String]): (Array[String],Array[Int])= {
-     var tmp = new mutable.HashMap[String,Int]
+     var tmp = new HashMap[String,Int]
      doc.foreach { term => 
        if(!tmp.contains(term))
          tmp += (term->0)
@@ -43,7 +43,7 @@ class TermVector(doc: Iterable[String]){
    }
 
    def intersectPos(other: TermVector): Iterable[(Int,Int)] = {
-     var result = new mutable.ListBuffer[(Int,Int)]
+     var result = new ListBuffer[(Int,Int)]
      var i = 0
      terms.foreach { term=>
        val j = other.indexOf(term)
@@ -61,8 +61,8 @@ from Text Book "Introduction to Information Retrieval" By Christopher D. Manning
 */
 class Corpus {
 
-  var allTerms = new mutable.HashMap[String,mutable.HashSet[Int]]
-  var allDocs = new mutable.HashMap[Int,TermVector]
+  var allTerms = new HashMap[String, HashSet[Int]]
+  var allDocs = new HashMap[Int, TermVector]
   var nDocs = 0
 
   def add(doc: Iterable[String]) : Int = {
@@ -71,7 +71,7 @@ class Corpus {
     nDocs += 1
     doc.foreach{ term=>
       if( !allTerms.contains(term) )
-        allTerms += (term->new mutable.HashSet[Int])
+        allTerms += (term->new HashSet[Int])
       allTerms(term) += docId
     }
     return docId

@@ -1,11 +1,11 @@
-import scala.collection._
+import scala.collection.mutable.HashMap
 
 /**
 Implements K Nearest Neighbor text classiﬁcation algorithm from Text Book
 "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 **/
 class KNN[C](distance:(Int,Int)=>Double, debug: Boolean = false) {
-   var classified = new mutable.HashMap[Int,C] 
+   var classified = new HashMap[Int,C] 
 
    def train(sample: Int, klass: C) = {
      classified += sample->klass

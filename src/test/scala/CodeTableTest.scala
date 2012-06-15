@@ -25,7 +25,7 @@ class CodeTableTest extends FunSuite {
 
      expect(List("BD","executive","manager",
                  "business","development","manager",
-                 "manager","of","planning","and","reporting")) {
+                 "manager","planning","reporting")) {
        codeDef.termSeq
      }
   }

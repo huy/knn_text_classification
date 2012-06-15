@@ -1,19 +1,19 @@
-import scala.collection._
+import scala.collection.mutable.{HashMap,HashSet}
 
 /**
 Implements Multinominal Naive Bayes text classiﬁcation algorithm from Text Book
 "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 **/
 class NaiveBayes[C](debug: Boolean = false) {
-   case class KlassInfo(var nDocs: Int, var nTerms: Int, var termFreq: mutable.Map[String,Int])
+   case class KlassInfo(var nDocs: Int, var nTerms: Int, var termFreq: HashMap[String,Int])
 
-   var allKlassInfo = new mutable.HashMap[C,KlassInfo]
-   var vocabulary = new mutable.HashSet[String]
+   var allKlassInfo = new HashMap[C,KlassInfo]
+   var vocabulary = new HashSet[String]
    var nDocs = 0
 
    def train(klass: C, doc: Iterable[String]) = {
      if( !allKlassInfo.contains(klass) ){
-       allKlassInfo += (klass->KlassInfo(0,0,new mutable.HashMap[String,Int]))
+       allKlassInfo += (klass->KlassInfo(0,0,new HashMap[String,Int]))
      }
 
      val klassInfo = allKlassInfo(klass)
