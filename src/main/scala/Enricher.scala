@@ -60,7 +60,7 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
 
 object Enricher {
   def usage() = {
-    println("java -jar text-classification.jar --algo=[nb|knn[K]] --new-table=filename --existing-table=filename [--code-id=id] [--debug]")
+    println("java -jar text_classification_2.9.2-1.0.min.jar --algo=[nb|knn[K]] --new-table=filename --existing-table=filename [--code-id=id] [--debug]")
     System.exit(1)
   }
 
@@ -112,7 +112,7 @@ object Enricher {
         existingTab.codeDefSeq.foreach {codeDef => algo.enrich(codeDef)}
       }
     }
-
+    println("--result:")
     newTab.toText.foreach {println}
   }
 }

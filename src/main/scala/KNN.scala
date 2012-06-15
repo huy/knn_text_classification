@@ -16,7 +16,7 @@ class KNN[C](distance:(Int,Int)=>Double, debug: Boolean = false) {
        }.toList.sortBy(_._2)
      
      if(debug)
-       println("--score per sample:\n%s".format(scorePerSample))
+       println("--score per sample against %d:\n%s".format(test, scorePerSample))
 
      val topK = scorePerSample.takeRight(k)
     
@@ -27,7 +27,7 @@ class KNN[C](distance:(Int,Int)=>Double, debug: Boolean = false) {
        }.map{case (klass,samples) => (klass,samples.foldLeft(0.0){(sum,s) => sum + s._2})}.toSeq.sortBy(_._2)
      
      if(debug)
-       println("--score per class:\n%s".format(scorePerKlass))
+       println("--score per class against %d:\n%s".format(test, scorePerKlass))
  
      if(scorePerKlass.forall{case(klass,score) => score == 0.0})
        None

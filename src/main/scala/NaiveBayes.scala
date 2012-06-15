@@ -49,7 +49,7 @@ class NaiveBayes[C](debug: Boolean = false) {
      val scorePerKlass = allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}
 
      if(debug )
-       println("-- scorePerKlass:\n%s".format(scorePerKlass))
+       println("-- scorePerKlass against %s:\n%s".format(doc,scorePerKlass))
 
      Some(scorePerKlass.maxBy{_._2}._1)
    }
