@@ -6,6 +6,14 @@ case class CodeInst(val desc: String, val transfer: String = "", val confidence:
 
 case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) {
 
+   val stopWords = Set(
+    "a", "an", "and", "are", "as", "at", "be", "but", "by",
+    "for", "if", "in", "into", "is", "it",
+    "no", "not", "of", "on", "or", "such",
+    "that", "the", "their", "then", "there", "these",
+    "they", "this", "to", "was", "will", "with"
+   )
+  
    var instances = new mutable.ListBuffer[CodeInst]
 
    def merge(codeDef: CodeDef) = {
@@ -15,10 +23,8 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
 
    def termSeq: Iterable[String] = {
      (desc.split("""\W""").toList ++: instances.map{z=> z.desc.split("""\W""")}.flatten).
-       filterNot{z=>z.isEmpty}.map{z=> 
-          val up = z.toUpperCase
-          if( up == z ) z else z.toLowerCase 
-       }
+     map{z=> if(z.toUpperCase == z) z else z.toLowerCase}.
+     filterNot{z => z.isEmpty or stopWords.contain(z)}
    }
 }
 
