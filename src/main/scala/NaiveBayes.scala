@@ -29,22 +29,6 @@ class NaiveBayes[C](debug: Boolean = false) {
      }
    }
 
-   def info={
-     println("vocabulary's size: " + vocabulary.size)
-     println("nDocs: " + nDocs)
-     allKlassInfo.foreach{ case (klass,info)=> 
-       println("text length of " + klass  + ":" + info.nTerms)
-       println("nDocs of " + klass  + ":" + info.nDocs)
-       vocabulary.foreach { term =>
-         val freq = if (info.termFreq.contains(term)) info.termFreq(term) else 0
-
-         println("freq of term " + term + " in " + klass  + ":" + freq)
-         println("P(t|c) - probability of term " + term + " in " + klass + ":" + 
-                 probabilityTermGivenKlass(term,klass)) 
-       }
-     }
-   }
-
    def apply(doc: Iterable[String]): Option[C] = {
      val scorePerKlass = allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}
 
