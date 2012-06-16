@@ -70,7 +70,7 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
 
 object Enricher {
   def usage() = {
-    println("java -jar text_classification_2.9.2-1.0.min.jar --algo=[nb|knn[K]] --new-table=filename --existing-table=filename [--code-id=id] [--debug]")
+    println("java -jar text_classification_2.9.2-1.0.min.jar --algo=[nb|knn[K]] --new-table=filename --existing-table=filename --result-table=filename [--code-id=id] [--debug]")
     System.exit(1)
   }
 
@@ -80,15 +80,17 @@ object Enricher {
     var debug = false
 
     val algoRegex = """^--algo=(\w+)""".r
-    val newTableRegex = """^--new-table=(\S+)""".r
-    val existingTableRegex = """^--existing-table=(\S+)""".r
+    val newTabRegex = """^--new-table=(\S+)""".r
+    val existingTabRegex = """^--existing-table=(\S+)""".r
+    val resultTabRegex = """^--result-table=(\S+)""".r
     val codeIdRegex = """^--code-id=(\w+)""".r
 
     args.foreach{ a =>
       a match {
         case algoRegex(value) => params += ("algo"->value)
-        case newTableRegex(value) => params += ("newTable"->value)
-        case existingTableRegex(value) => params += ("existingTable"->value)
+        case newTabRegex(value) => params += ("newTable"->value)
+        case existingTabRegex(value) => params += ("existingTable"->value)
+        case resultTabRegex(value) => params += ("resultTable"->value)
         case codeIdRegex(value) => params += ("codeId"->value)
         case "--debug" => debug = true
         case _ =>
@@ -122,7 +124,12 @@ object Enricher {
         existingTab.codeDefSeq.foreach {codeDef => algo.enrich(codeDef)}
       }
     }
-    println("--result:")
-    newTab.toText.foreach {println}
+    params.get("resultTable") match {
+      case Some(fileName) => newTab.toTextFile(fileName)
+      case None => {
+        println("--result:")
+        newTab.toText.foreach {println}
+      }
+    }
   }
 }

@@ -1,6 +1,7 @@
 import scala.collection.mutable.{ListBuffer,HashMap}
 import scala.util.matching.Regex
 import scala.io.Source
+import java.io.{File,PrintWriter}
 
 case class CodeInst(val desc: String, val transfer: String = "", val confidence: Double = 1.0)
 
@@ -43,6 +44,16 @@ class CodeTable {
   def toText: Iterable[String] = {
     allCodeDefs.values.map{d => "%s\t%s".format(d.id,d.desc) +: 
       d.instances.map{s => "-\t%s".format(s.desc)}}.flatten
+  }
+
+  def toTextFile(fileName: String) = {
+    val p = new java.io.PrintWriter(new File(fileName))
+    try { 
+      toText.foreach{p.println}
+    }
+    finally { 
+      p.close() 
+    }
   }
 }
 
