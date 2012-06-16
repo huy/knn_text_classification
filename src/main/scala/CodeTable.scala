@@ -22,10 +22,18 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
      instances ++= codeDef.instances
    }
 
+   private def stem(term: String) = {
+     var stemmer = new Stemmer
+     stemmer.add(term.toCharArray,term.size)
+     stemmer.stem()
+     stemmer.toString
+   }
+
    def termSeq: Iterable[String] = {
-     (desc.split("""\W""").toList ++: instances.map{z=> z.desc.split("""\W""")}.flatten).
-     map{z=> if(z.toUpperCase == z) z else z.toLowerCase}.
-     filterNot{z => z.isEmpty || stopWords.contains(z)}
+     (desc.split("""\W""").toList ++: instances.map{z => z.desc.split("""\W""")}.flatten).
+     map{z => if(z.toUpperCase == z) z else z.toLowerCase}.
+     filterNot{z => z.isEmpty || stopWords.contains(z)}.
+     map{z => stem(z)}
    }
 }
 

@@ -23,9 +23,9 @@ class CodeTableTest extends FunSuite {
      codeDef.instances += CodeInst("business development manager")
      codeDef.instances += CodeInst("manager of planning and reporting")
 
-     expect(List("BD","executive","manager",
-                 "business","development","manager",
-                 "manager","planning","reporting")) {
+     expect(List("BD","execut","manag",
+                 "busi","develop","manag",
+                 "manag","plan","report")) {
        codeDef.termSeq
      }
   }
