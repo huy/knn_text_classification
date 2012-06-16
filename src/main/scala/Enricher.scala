@@ -14,14 +14,17 @@ class NaiveBayesEnricher(codeTable: CodeTable, debug: Boolean = false) extends E
   }
 
   def enrich(codeDef: CodeDef): Unit = {
-    classifier.apply(codeDef.termSeq) match {
+    classifier.apply(codeDef.termSeq, codeDef.id) match {
       case Some(klass) => {
+        if(debug)
+          println("--merge %s to %s".format(codeDef.id,klass))
+
         codeTable.codeDef(klass).merge(codeDef)
         classifier.train(klass = klass, doc = codeDef.termSeq)
       }
       case None => {
-        codeTable.add(codeDef)
-        classifier.train(klass = codeDef.id, doc = codeDef.termSeq)
+        if(debug)
+          println("--found no def for %s".format(codeDef.id))
       }
     }
   }
@@ -57,12 +60,8 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
         classifier.train(klass = klass, sample = docId)
       }
       case None => {
-        codeTable.add(codeDef)
-
         if(debug)
           println("--found no def for %s".format(info(docId)))
-
-        classifier.train(klass = codeDef.id, sample = docId)
       }
     }
   }
@@ -70,7 +69,7 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
 
 object Enricher {
   def usage() = {
-    println("java -jar text_classification_2.9.2-1.0.min.jar --algo=[nb|knn[K]] --new-table=filename --existing-table=filename --result-table=filename [--code-id=id] [--debug]")
+    println("java -jar text_classification_2.9.2-1.0.min.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]")
     System.exit(1)
   }
 
@@ -83,7 +82,7 @@ object Enricher {
     val newTabRegex = """^--new-table=(\S+)""".r
     val existingTabRegex = """^--existing-table=(\S+)""".r
     val resultTabRegex = """^--result-table=(\S+)""".r
-    val codeIdRegex = """^--code-id=(\w+)""".r
+    val codeIdRegex = """^--code-id=(\S+)""".r
 
     args.foreach{ a =>
       a match {
@@ -105,23 +104,25 @@ object Enricher {
     val existingTab = CodeTable.parseTextFile(params("existingTable"))
     val newTab = CodeTable.parseTextFile(params("newTable"))
 
-    val knnRegex = """^knn(\d+)""".r
-    var algo: Enricher = null
+    val knnRegex = """^(\d+)nn""".r
+    var algo: Option[Enricher] = None
 
     params.get("algo") match {
-      case Some("nb") => algo = new NaiveBayesEnricher(codeTable = newTab, debug = debug)
-      case Some(knnRegex(k)) => algo = new KNNEnricher(codeTable = newTab, k = k.toInt, debug = debug)
+      case Some("nb") => algo = Some(new NaiveBayesEnricher(codeTable = newTab, debug = debug))
+      case Some(knnRegex(k)) => algo = Some(new KNNEnricher(codeTable = newTab, k = k.toInt, debug = debug))
       case _ => usage()
     }
     params.get("codeId") match {
       case Some(codeId) => {
-        existingTab.getCodeDef(codeId) match {
-          case Some(codeDef) => algo.enrich(codeDef)
-          case None => println("%s does not exists in %s".format(codeId,params("existingTable")))
+        codeId.split(",").foreach { z =>
+          existingTab.getCodeDef(z) match {
+            case Some(codeDef) => algo.get.enrich(codeDef)
+            case None => println("%s does not exists in %s".format(codeId,params("existingTable")))
+          }
         }
       }
       case None => {
-        existingTab.codeDefSeq.foreach {codeDef => algo.enrich(codeDef)}
+        existingTab.codeDefSeq.foreach {codeDef => algo.get.enrich(codeDef)}
       }
     }
     params.get("resultTable") match {

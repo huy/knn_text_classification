@@ -29,13 +29,26 @@ class NaiveBayes[C](debug: Boolean = false) {
      }
    }
 
-   def apply(doc: Iterable[String]): Option[C] = {
-     val scorePerKlass = allKlassInfo.keys.map{ klass=> (klass,score(klass, doc))}
+   def apply(doc: Iterable[String], docId: String = ""): Option[C] = {
 
-     if(debug )
-       println("-- scorePerKlass against %s:\n%s".format(doc,scorePerKlass))
+     if(doc.forall{ t=> !vocabulary.contains(t) }){
+       if(debug)
+         println("--vocabulary contains no terms from  %s".format(docId))
 
-     Some(scorePerKlass.maxBy{_._2}._1)
+       return None
+     }
+
+     val scorePerKlass = allKlassInfo.keys.map{ klass=> (klass,score(klass, doc)) }
+
+     if(debug)
+       println("--scorePerKlass against %s:\n%s".format(docId, scorePerKlass))
+
+     if(scorePerKlass.groupBy{ case (klass, score) => score }.size == 1){
+        println("no discrimination for %s".format(doc))
+        None
+       }
+     else
+       Some(scorePerKlass.maxBy{_._2}._1)
    }
 
    private def probabilityTermGivenKlass(term: String, klass: C): Double={
@@ -50,7 +63,7 @@ class NaiveBayes[C](debug: Boolean = false) {
      val probabilityDocGivenKlass = (klassInfo.nDocs + 0.0)/nDocs
 
      val result = doc.foldLeft(math.log(probabilityDocGivenKlass)){(sum,t) => 
-        sum + math.log(probabilityTermGivenKlass(t,klass))
+       sum + math.log(probabilityTermGivenKlass(t,klass))
      }
 
      result

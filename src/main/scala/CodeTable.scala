@@ -73,26 +73,26 @@ object CodeTable {
   
      var result = new CodeTable
      var lineno = 1
-     var currentDef: CodeDef = null
+     var currentDef: Option[CodeDef] = None
   
      lines.foreach { z =>
        z match {
          case startDef(code,desc) => { 
-           if(currentDef != null)
-             result.add(currentDef)
-           currentDef = CodeDef(id = code, desc = desc)
+           if(currentDef != None)
+             result.add(currentDef.get)
+           currentDef = Some(CodeDef(id = code, desc = desc))
          }
          case continueDef(synonym) => {
-           if(currentDef == null)
+           if(currentDef == None)
              throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
            else
-             currentDef.instances += CodeInst(synonym)
+             currentDef.get.instances += CodeInst(synonym)
          }  
          case _ => throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
        }  
        lineno += 1 
      }
-     if(currentDef!=null) result.add(currentDef)
+     if(currentDef != None) result.add(currentDef.get)
 
      result
    }
