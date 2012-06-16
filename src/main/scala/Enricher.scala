@@ -15,9 +15,9 @@ class NaiveBayesEnricher(codeTable: CodeTable, debug: Boolean = false) extends E
 
   def enrich(codeDef: CodeDef): Unit = {
     classifier.apply(codeDef.termSeq) match {
-      case Some(id) => {
-        codeTable.codeDef(id).merge(codeDef)
-        classifier.train(klass = id, doc = codeDef.termSeq)
+      case Some(klass) => {
+        codeTable.codeDef(klass).merge(codeDef)
+        classifier.train(klass = klass, doc = codeDef.termSeq)
       }
       case None => {
         codeTable.add(codeDef)
@@ -29,29 +29,39 @@ class NaiveBayesEnricher(codeTable: CodeTable, debug: Boolean = false) extends E
 
 class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) extends Enricher(codeTable,debug){
   var corpus = new Corpus
-  var classifier  = new KNN[String](distance = corpus.cosine, debug = debug)
 
-  private var debugInfo = new ListBuffer[(Int,String)]
+  var debugInfo = new HashMap[Int,String]
+  def info(docId: Int) = debugInfo.getOrElse(docId,docId.toString)
+
+  var classifier  = new KNN[String](distance = corpus.cosine, debug = debug, info = info)
 
   codeTable.codeDefSeq.foreach {codeDef=>
     val docId = corpus.add(codeDef.termSeq)
     if(debug)
-      debugInfo += Tuple2(docId,codeDef.desc)
+      debugInfo += (docId->codeDef.id)
     classifier.train(klass = codeDef.id, sample = docId)
   }
-  if(debug)
-    println("--docId2Code:\n%s".format(debugInfo))
 
   def enrich(codeDef: CodeDef): Unit = {
     val docId = corpus.add(codeDef.termSeq)
 
+    if(debug)
+      debugInfo += (docId->codeDef.id)
+
     classifier.apply(test = docId, k = k) match {
-      case Some(id) => {
-        codeTable.codeDef(id).merge(codeDef)
-        classifier.train(klass = id, sample = docId)
+      case Some(klass) => {
+        if(debug)
+          println("--merge %s to %s".format(info(docId),klass))
+
+        codeTable.codeDef(klass).merge(codeDef)
+        classifier.train(klass = klass, sample = docId)
       }
       case None => {
         codeTable.add(codeDef)
+
+        if(debug)
+          println("--found no def for %s".format(info(docId)))
+
         classifier.train(klass = codeDef.id, sample = docId)
       }
     }
