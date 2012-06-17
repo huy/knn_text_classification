@@ -25,8 +25,8 @@ category given a document.
 
 **K-Nearest Neighbor by Weighted Proximity**
 
-In K-Nearest Neighbor algorithm we look for a K - known documents (K is predefined parameter) that are "closest" 
-to a test document then assign the test document to the same category of these documents with majority. 
+In K-Nearest Neighbor algorithm we look for a K - known documents (K is predefined parameter) that are "nearest" 
+to a test document then assign the test document to the same category of these documents with highest sum of proximity. 
 
 Documents are represented using tf*idf vector space model. The proximity between two document is consine similarity 
 of their vectors. 
