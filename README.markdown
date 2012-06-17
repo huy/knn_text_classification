@@ -23,7 +23,7 @@ Information Retrieval" by Christopher D. Manning, Prabhakar Raghavan & Hinrich S
 In this algorithm we will try to find a category (i.e a code of new table) with maximum P(c|d) - probability of 
 category given a document. 
 
-**K-Nearest Neighbor**
+**K-Nearest Neighbor Weighted Proximity**
 
 In K-Nearest Neighbor algorithm we look for a K - known documents (K is predefined parameter) that are "closest" 
 to a test document then assign the test document to the same category of these documents with majority. 
@@ -38,3 +38,33 @@ stop worlds has to be removed and terms are to be stemmed
 
 * the list of stop words is borrowed from ENGLISH_STOP_WORDS of lucene libarary
 * the implementation of stemming is borrowed from http://tartarus.org/~martin/PorterStemmer/java.txt 
+
+**Implementation**
+
+Except borrowed stemming code which is in Java, code is written in Scala. 
+
+**Build**
+
+To build project we need sbt tool, which can be install following [this instruction] (https://github.com/harrah/xsbt/wiki).
+
+bc. $sbt
+>compile # compile
+>test  # run test
+>proguard # create self executed jar
+
+**Run**
+
+p.Using java
+
+bc.java -jar ./target/scala-2.9.2/text_classification_2.9.2-1.0.min.jar
+--params:
+Map()
+java -jar text_classification_2.9.2-1.0.min.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]
+
+p.Using scala
+
+--params:
+Map()
+bc. scala ./target/scala-2.9.2/text_classification_2.9.2-1.0.jar
+scala -jar text_classification_2.9.2-1.0.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]
+
