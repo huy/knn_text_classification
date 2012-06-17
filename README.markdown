@@ -47,24 +47,24 @@ Except borrowed stemming code which is in Java, code is written in Scala.
 
 To build project we need sbt tool, which can be install following [this instruction] (https://github.com/harrah/xsbt/wiki).
 
-bc. $sbt
->compile # compile
->test  # run test
->proguard # create self executed jar
+    $sbt
+    >compile # compile
+    >test  # run test
+    >proguard # create self executed jar
 
 **Run**
 
-p.Using java
+Using java
 
-bc.java -jar ./target/scala-2.9.2/text_classification_2.9.2-1.0.min.jar
---params:
-Map()
-java -jar text_classification_2.9.2-1.0.min.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]
+    java -jar ./target/scala-2.9.2/text_classification_2.9.2-1.0.min.jar
+    --params:
+    Map()
+    java -jar text_classification_2.9.2-1.0.min.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]
 
-p.Using scala
+Using scala
 
---params:
-Map()
-bc. scala ./target/scala-2.9.2/text_classification_2.9.2-1.0.jar
-scala -jar text_classification_2.9.2-1.0.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]
-
+    scala ./target/scala-2.9.2/text_classification_2.9.2-1.0.jar
+    --params:
+    Map()
+    scala -jar text_classification_2.9.2-1.0.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]
+    
