@@ -18,7 +18,7 @@ class CorpusTest extends FunSuite with BeforeAndAfter {
     val docId = corpus.add(doc.split(" ")) 
 
     expect(math.sqrt(27*27+3*3+14*14)){
-      corpus.docVector(docId).length
+      corpus.docVector(docId).length{ _ => 1.0 }
     }
   }
 
@@ -69,27 +69,20 @@ class CorpusTest extends FunSuite with BeforeAndAfter {
     val doc1 = "car "*27 + "auto "*3 + "best "*14
     val doc2 = "car "*4  + "auto "*33 + "insurance "*33
     val doc3 = "car "*24 + "insurance "*29 + "best "*17
+
     val docId1 = corpus.add(doc1.split(" ")) 
     val docId2 = corpus.add(doc2.split(" ")) 
     val docId3 = corpus.add(doc3.split(" ")) 
 
     val v1 = corpus.docVector(docId1)
     val v2 = corpus.docVector(docId2)
-    val v3 = corpus.docVector(docId3)
-
-    expect(3){
-      corpus.nDocs
-    }
-
-    expect(math.log(3.0/2)){
-      corpus.idf("auto")
-    }
 
     expect(List((0,0),(2,1))){ 
       v1.intersectPos(v2).toList
     }
 
-    assert(0.0 != corpus.cosine(1,2))
+    assert(corpus.cosine(docId1, docId2) > 0.0)
+    assert(corpus.cosine(docId1, docId2) < 1.0)
     
   }
 }

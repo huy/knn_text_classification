@@ -38,8 +38,11 @@ class TermVector(doc: Iterable[String]){
        0
    }
 
-   def length={
-     math.sqrt(termFreqs.foldLeft(0){(sum,n) => sum+n*n}) 
+   def length(idf: String => Double): Double={
+     math.sqrt(terms.foldLeft(0.0){ (sum,t) => 
+      val idfTmp = idf(t)
+      val tfTmp = termFreqs(indexOf(t))
+      sum + (tfTmp*idfTmp)*(tfTmp*idfTmp) }) 
    }
 
    def intersectPos(other: TermVector): Iterable[(Int,Int)] = {
@@ -108,23 +111,19 @@ class Corpus {
 
     val v1 = docVector(one)
     val v2 = docVector(other)
-
-    val result = v1.intersectPos(v2).foldLeft(0.0) {case (sum,(i,j))=>
-      if(v1.terms(i) != v2.terms(j))
-        throw new RuntimeException("v1.terms(%d) != v2.term(%d)".format(i,j))
-
-      if(v1.termFreqs(i) == 0)
-        throw new RuntimeException("v1.termFreqs(%d) == 0".format(i))
-
-      if(v2.termFreqs(j) == 0)
-        throw new RuntimeException("v2.termFreqs(%d) == 0".format(j))
-
-      val tmp = idf(v1.terms(i))
-
-      (if(tmp != 0.0) sum+(v1.termFreqs(i)*tmp*v2.termFreqs(j)*tmp)/(v1.length*v2.length) else sum)
+    
+    var nominal = v1.intersectPos(v2).foldLeft(0.0) { case(sum,(i,j)) =>
+      val idfVal = idf(v1.terms(i))
+     
+      if(idfVal != 0.0) 
+        sum + v1.termFreqs(i)*v2.termFreqs(j)*idfVal*idfVal
+      else
+        sum
     }
 
-    return result
+    val denominal = v1.length(idf)*v2.length(idf)
+
+    return nominal/denominal
   }
 }
 
