@@ -13,13 +13,13 @@ class KNNTest extends FunSuite with BeforeAndAfter {
     val docId2 = corpus.add(doc2.split(" "))
     val docId3 = corpus.add(doc3.split(" "))
 
-    val knn = new KNN[String](proximity = corpus.cosine)
+    val knn = new KNN[String](proximity = corpus.cosine, k = 2)
 
     knn.train(sample = docId1, klass = "car")
     knn.train(sample = docId2, klass = "insurance")
 
-    expect("insurance"){
-       knn.apply(test = docId3, k=2).get
+    expect(Some("insurance")){
+       knn.apply(test = docId3)
     }
   }
 }
