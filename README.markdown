@@ -15,8 +15,8 @@ The problem will be solved by using two popular algorithms
 * Multinominal Naive Bayes
 * K-Nearest Neighbor
 
-Both algorithms are implemented using corresponding pseudo code taken from Text Book "Introduction to 
-Information Retrieval" by Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze.
+Both algorithms are implemented using corresponding pseudo code taken from Text Book [Introduction to 
+Information Retrieval](http://nlp.stanford.edu/IR-book/) by Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze.
  
 **Multinominal Naive Bayes**
 
