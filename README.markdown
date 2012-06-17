@@ -28,8 +28,8 @@ category given a document.
 In K-Nearest Neighbor algorithm we look for a K - known documents (K is predefined parameter) that are "closest" 
 to a test document then assign the test document to the same category of these documents with majority. 
 
-Documents are represented using tf*idf vector space model. The distance between two document is consine similarity 
-of their vectors. Documents are represented using tf*idf vector space model. 
+Documents are represented using tf*idf vector space model. The proximity between two document is consine similarity 
+of their vectors. 
 
 **Term's processing**
 
@@ -57,14 +57,22 @@ To build project we need sbt tool, which can be install following [this instruct
 Using java
 
     java -jar ./target/scala-2.9.2/text_classification_2.9.2-1.0.min.jar
-    --params:
-    Map()
-    java -jar text_classification_2.9.2-1.0.min.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]
 
 Using scala
 
     scala ./target/scala-2.9.2/text_classification_2.9.2-1.0.jar
-    --params:
-    Map()
-    scala -jar text_classification_2.9.2-1.0.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]
     
+Using sbt
+
+    sbt
+    >run
+
+Examples
+
+* Enrich new code table in file "new.txt" by Naive Bayes Algorithm using previously enriched table "existing.txt" and write result after enrichment to out.txt
+
+        scala -jar text_classification_2.9.2-1.0.jar --algo=nb --new-table=new.txt --existing-table=existing.txt --result-table=out.txt 
+
+* Enrich new code table in file "new.txt" by KNN Algorithm with K=3 using two codes from previously enriched table "existing.txt", write debug info and the result to stdout
+
+        scala -jar text_classification_2.9.2-1.0.jar --algo=3nn --new-table=new.txt --existing-table=existing.txt --result-table=out.txt=--code-id=311,142 --debug
