@@ -1,7 +1,7 @@
 import scala.collection.mutable.HashMap
 
 /**
-Implements K Nearest Neighbor text classiﬁcation algorithm from Text Book
+Implements K Nearest Neighbor Weighted by Proximity from text classiﬁcation algorithm from Text Book
 "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 **/
 class KNN[C](proximity: (Int,Int)=>Double, debug: Boolean = false, info: Int=>String = _.toString) {
