@@ -1,6 +1,6 @@
 # Solution for populate synonym's table automatically
 
-**Modeling the problem**
+## Modeling the problem
 
 The task is similar to problem of text classification. Text classification is the problem of identifying
 which category a new observed document (aka test document) belongs, on the basis of a training set of data 
@@ -39,7 +39,7 @@ stop worlds has to be removed and terms are to be stemmed
 * the list of stop words is borrowed from ENGLISH_STOP_WORDS of lucene libarary
 * the implementation of stemming is borrowed from http://tartarus.org/~martin/PorterStemmer/java.txt 
 
-**Implementation**
+## Implementation
 
 Except borrowed stemming code which is in Java, code is written in Scala. 
 
@@ -67,7 +67,7 @@ Using sbt
     sbt
     >run
 
-Examples
+**Examples**
 
 Enrich new code table in file `new.txt` by Naive Bayes Algorithm using previously enriched table `existing.txt` and write result after enrichment to `out.txt`
 
