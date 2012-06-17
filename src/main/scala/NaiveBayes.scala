@@ -44,7 +44,8 @@ class NaiveBayes[C](debug: Boolean = false) {
        println("--scorePerKlass against %s:\n%s".format(docId, scorePerKlass))
 
      if(scorePerKlass.groupBy{ case (klass, score) => score }.size == 1){
-        println("no discrimination for %s".format(doc))
+        if(debug)
+          println("no discrimination for %s".format(docId))
         None
        }
      else
