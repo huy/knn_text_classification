@@ -23,7 +23,7 @@ Information Retrieval](http://nlp.stanford.edu/IR-book/) by Christopher D. Manni
 In this algorithm we will try to find a category (i.e a code of new table) with maximum P(c|d) - probability of 
 category given a document. 
 
-**K-Nearest Neighbor Weighted Proximity**
+**K-Nearest Neighbor by Weighted Proximity**
 
 In K-Nearest Neighbor algorithm we look for a K - known documents (K is predefined parameter) that are "closest" 
 to a test document then assign the test document to the same category of these documents with majority. 
