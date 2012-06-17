@@ -36,7 +36,7 @@ of their vectors.
 In order to use these algorithms, code's description as well as description of it's synonyms has to be tokenized, 
 stop worlds has to be removed and terms are to be stemmed 
 
-* the list of stop words is borrowed from ENGLISH_STOP_WORDS of lucene library
+* the list of stop words is borrowed from ENGLISH_STOP_WORDS of http://lucene.apache.org/
 * the implementation of stemming is borrowed from http://tartarus.org/~martin/PorterStemmer/java.txt 
 
 ## Implementation
@@ -78,3 +78,17 @@ Enrich new code table in file `new.txt` by KNN Algorithm with K=3 using two code
 
     scala -jar text_classification_2.9.2-1.0.jar --algo=3nn --new-table=new.txt --existing-table=existing.txt \
     --result-table=out.txt=--code-id=311,142 --debug
+
+**File format of a code table**
+
+Code table is ascii file with the following format e.g.
+
+    1       Administrator  # id  and desc of a code
+    -       system administrator # synnonm
+    -       network administrator
+    -       Database Administrator
+    434     Recruitment Consultant
+    -       On-site Consultant
+    -       Senior Recruitment Consultant
+
+
