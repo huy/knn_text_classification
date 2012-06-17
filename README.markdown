@@ -36,7 +36,7 @@ of their vectors.
 In order to use these algorithms, code's description as well as description of it's synonyms has to be tokenized, 
 stop worlds has to be removed and terms are to be stemmed 
 
-* the list of stop words is borrowed from ENGLISH_STOP_WORDS of lucene libarary
+* the list of stop words is borrowed from ENGLISH_STOP_WORDS of lucene library
 * the implementation of stemming is borrowed from http://tartarus.org/~martin/PorterStemmer/java.txt 
 
 ## Implementation
