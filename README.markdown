@@ -77,7 +77,7 @@ Enrich new code table in file `new.txt` by Naive Bayes Algorithm using previousl
 Enrich new code table in file `new.txt` by KNN Algorithm with K=3 using two codes from previously enriched table `existing.txt`, write debug info and the result to stdout
 
     scala -jar text_classification_2.9.2-1.0.jar --algo=3nn --new-table=new.txt --existing-table=existing.txt \
-    --result-table=out.txt=--code-id=311,142 --debug
+    --result-table=out.txt --code-id=311,142 --debug
 
 **File format of a code table**
 
