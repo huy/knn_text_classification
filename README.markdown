@@ -45,7 +45,7 @@ Except borrowed stemming code which is in Java, code is written in Scala.
 
 **Build**
 
-To build project we need sbt tool, which can be install following [this instruction] (https://github.com/harrah/xsbt/wiki).
+To build project we need sbt tool, which can be install following https://github.com/harrah/xsbt/wiki.
 
     $sbt
     >compile # compile
