@@ -29,8 +29,8 @@ class NaiveBayesTest extends FunSuite {
        nb.train(country,str.split(" "))
      }
 
-     expect("china") { nb.apply("Chinese Chinese Chinese Tokyo Japan".split(" ")).get}
-     expect("other") { nb.apply("Tokyo Japan".split(" ")).get}
+     expect(Some("china")) { nb.apply("1","Chinese Chinese Chinese Tokyo Japan".split(" "))}
+     expect(Some("other")) { nb.apply("2","Tokyo Japan".split(" "))}
   }
  
 }

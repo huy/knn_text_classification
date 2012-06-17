@@ -29,7 +29,7 @@ class NaiveBayes[C](debug: Boolean = false) {
      }
    }
 
-   def apply(doc: Iterable[String], docId: String = ""): Option[C] = {
+   def apply(docId: String, doc: Iterable[String]): Option[C] = {
 
      if(doc.forall{ t=> !vocabulary.contains(t) }){
        if(debug)

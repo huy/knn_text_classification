@@ -14,7 +14,7 @@ class NaiveBayesEnricher(codeTable: CodeTable, debug: Boolean = false) extends E
   }
 
   def enrich(codeDef: CodeDef): Unit = {
-    classifier.apply(codeDef.termSeq, codeDef.id) match {
+    classifier.apply(codeDef.id, codeDef.termSeq) match {
       case Some(klass) => {
         if(debug)
           println("--merge %s to %s".format(codeDef.id,klass))
