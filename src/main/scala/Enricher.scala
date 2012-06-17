@@ -36,7 +36,7 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
   var debugInfo = new HashMap[Int,String]
   def info(docId: Int) = debugInfo.getOrElse(docId,docId.toString)
 
-  var classifier  = new KNN[String](distance = corpus.cosine, debug = debug, info = info)
+  var classifier  = new KNN[String](proximity = corpus.cosine, debug = debug, info = info)
 
   codeTable.codeDefSeq.foreach {codeDef=>
     val docId = corpus.add(codeDef.termSeq)

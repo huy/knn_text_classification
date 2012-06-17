@@ -4,7 +4,7 @@ import scala.collection.mutable.HashMap
 Implements K Nearest Neighbor text classiﬁcation algorithm from Text Book
 "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 **/
-class KNN[C](distance:(Int,Int)=>Double, debug: Boolean = false, info: Int=>String = _.toString) {
+class KNN[C](proximity: (Int,Int)=>Double, debug: Boolean = false, info: Int=>String = _.toString) {
    var classified = new HashMap[Int,C] 
 
    def train(sample: Int, klass: C) = {
@@ -12,7 +12,7 @@ class KNN[C](distance:(Int,Int)=>Double, debug: Boolean = false, info: Int=>Stri
    }
 
    def apply(test: Int, k: Int) : Option[C] = {
-     val scorePerSample = classified.map{case(sample,klass)=> Tuple2(klass,distance(test, sample))}.
+     val scorePerSample = classified.map{case(sample,klass)=> Tuple2(klass,proximity(test, sample))}.
        filter{case(klass,score) => score > 0.0}.toSeq.sortBy(_._2)
      
      if(debug)
