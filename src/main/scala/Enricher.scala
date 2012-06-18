@@ -96,7 +96,7 @@ object Enricher {
       }
     }
 
-    println("--params:\n%s".format(params))
+    println("--params:\n%s".format(params.mkString(", ")))
 
     if(params.get("newTable") == None || params.get("existingTable") == None)
       usage()

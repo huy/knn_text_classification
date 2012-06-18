@@ -41,7 +41,7 @@ class NaiveBayes[C](debug: Boolean = false) {
      val scorePerKlass = allKlassInfo.keys.map{ klass=> (klass,score(klass, doc)) }
 
      if(debug)
-       println("--scorePerKlass against %s:\n%s".format(docId, scorePerKlass))
+       println("--scorePerKlass against %s:\n%s".format(docId, scorePerKlass.mkString(", ")))
 
      if(scorePerKlass.groupBy{ case (klass, score) => score }.size == 1){
         if(debug)

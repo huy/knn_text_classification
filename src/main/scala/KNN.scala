@@ -21,18 +21,18 @@ class KNN[C](
       filter{case(klass,score) => score > 0.0}.toSeq.sortBy(_._2)
     
     if(debug)
-      println("--score per sample against %s:\n%s".format(info(test), scorePerSample))
+      println("--score per sample against %s:\n%s".format(info(test), scorePerSample.mkString(", ")))
 
     val topK = scorePerSample.takeRight(k)
    
     if(debug)
-      println("--topK:\n%s".format(topK))
+      println("--top %d:\n%s".format(k, topK.mkString(", ")))
      
     val scorePerKlass = topK.groupBy{case (klass,score) => klass}.
       map{case (klass,samples) => (klass,samples.foldLeft(0.0){(sum,s) => sum + s._2})}.toSeq.sortBy(_._2)
     
     if(debug)
-      println("--score per class against %s:\n%s".format(info(test), scorePerKlass))
+      println("--score per class against %s:\n%s".format(info(test), scorePerKlass.mkString(", ")))
  
     if(scorePerKlass.size == 0)
       None
