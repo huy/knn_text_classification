@@ -51,7 +51,7 @@ class TermVector(doc: Iterable[String]){
      terms.foreach { term=>
        val j = other.indexOf(term)
        if(j >= 0) 
-         result += Tuple2(i,j)
+         result += Pair(i,j)
        i += 1    
      }      
      result
