@@ -3,7 +3,37 @@ import org.scalatest.BeforeAndAfter
  
 class KNNTest extends FunSuite with BeforeAndAfter {
 
-  test("Knn"){
+  test("Knn for 2 classes inside and outside of interval 5..10"){
+    val knn = new KNN[String](proximity = (a: Int, b: Int) => 1.0/(1.0+math.abs(a-b)), k = 3)
+
+    knn.train(sample=5, klass= "inside")
+    knn.train(sample=8, klass= "inside")
+    knn.train(sample=10, klass= "inside")
+
+    knn.train(sample=1, klass= "outside")
+    knn.train(sample=4, klass= "outside")
+    knn.train(sample=12, klass= "outside")
+    knn.train(sample=15, klass= "outside")
+
+    expect(7) {
+      knn.classified.size
+    }
+
+    expect(Some("inside")){
+       knn.apply(test = 9)
+    }
+
+    expect(Some("outside")){
+       knn.apply(test = 2)
+    }
+
+    expect(Some("outside")){
+       knn.apply(test = 13)
+    }
+
+  }
+
+  test("Knn with cosine proximity"){
     val corpus = new Corpus
     val doc1 = "car "*27 + "auto "*3 + "best "*14
     val doc2 = "car "*4  + "auto "*33 + "insurance "*33 

@@ -17,8 +17,8 @@ class KNN[C](
   }
 
   def apply(test: Int) : Option[C] = {
-    val scorePerSample = classified.map{case(sample,klass)=> Tuple2(klass,proximity(test, sample))}.
-      filter{case(klass,score) => score > 0.0}.toSeq.sortBy(_._2)
+    val scorePerSample = classified.toSeq.map{case(sample,klass)=> Tuple2(klass,proximity(test, sample))}.
+      sortBy(_._2).filter{case(klass,score) => score > 0.0}.sortBy(_._2)
     
     if(debug)
       println("--score per sample against %s:\n%s".format(info(test), scorePerSample.mkString(", ")))

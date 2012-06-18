@@ -64,7 +64,7 @@ class CorpusTest extends FunSuite with BeforeAndAfter {
     }
   }
 
-  test("cosine distance") {
+  test("cosine proximity") {
     var corpus = new Corpus
     val doc1 = "car "*27 + "auto "*3 + "best "*14
     val doc2 = "car "*4  + "auto "*33 + "insurance "*33
