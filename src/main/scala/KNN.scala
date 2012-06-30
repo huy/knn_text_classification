@@ -1,8 +1,8 @@
 import scala.collection.mutable.HashMap
 
 /**
-Implements K Nearest Neighbor Weighted by Proximity from text classiﬁcation algorithm from Text Book
-"Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
+Implements brute force K Nearest Neighbor Weighted by Proximity from text classiﬁcation algorithm from 
+Text Book "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
 **/
 class KNN[C](
   proximity: (Int,Int)=>Double, 
@@ -16,7 +16,7 @@ class KNN[C](
     classified += sample->klass
   }
 
-  def apply(test: Int) : Option[C] = {
+  def apply(test: Int) : Option[(C,Double)] = {
     val scorePerSample = classified.toSeq.map{case(sample,klass)=> Pair(klass,proximity(test, sample))}.
       sortBy(_._2).filter{case(klass,score) => score > 0.0}.sortBy(_._2)
     
@@ -29,7 +29,7 @@ class KNN[C](
       println("--top %d:\n%s".format(k, topK.mkString(", ")))
      
     val scorePerKlass = topK.groupBy{case (klass,score) => klass}.
-      map{case (klass,samples) => (klass,samples.foldLeft(0.0){(sum,s) => sum + s._2})}.toSeq.sortBy(_._2)
+      map{ case (klass,samples) => (klass,samples.foldLeft(0.0){ (sum,s) => sum + s._2 }) }.toSeq.sortBy(_._2)
     
     if(debug)
       println("--score per class against %s:\n%s".format(info(test), scorePerKlass.mkString(", ")))
@@ -37,6 +37,6 @@ class KNN[C](
     if(scorePerKlass.size == 0)
       None
     else
-      Some(scorePerKlass.last._1)
+      Some(scorePerKlass.last)
   }
 }

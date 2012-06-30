@@ -2,11 +2,7 @@ import scala.io.Source
 import scala.collection.mutable.{ListBuffer,HashMap}
 import scala.util.matching.Regex
 
-abstract class Enricher(var codeTable: CodeTable, val debug: Boolean = false) {
-  def enrich(codeDef: CodeDef): Unit
-}
-
-class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) extends Enricher(codeTable,debug){
+class Enricher(codeTable: CodeTable, k:Int = 3, threshold: Double = 0.5, debug: Boolean = false){
   var corpus = new Corpus
 
   var debugInfo = new HashMap[Int,String]
@@ -14,7 +10,7 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
 
   var classifier  = new KNN[String](proximity = corpus.cosine, k = k, debug = debug, info = info)
 
-  codeTable.codeDefSeq.foreach {codeDef=>
+  codeTable.codeDefSeq.foreach { codeDef =>
     val docId = corpus.add(codeDef.termSeq)
     if(debug)
       debugInfo += (docId->codeDef.id)
@@ -28,16 +24,25 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
       debugInfo += (docId->codeDef.id)
 
     classifier.apply(docId) match {
-      case Some(klass) => {
+      case Some((klass,score)) => {
         if(debug)
-          println("--merge %s to %s".format(info(docId),klass))
+          println("---found def '%s' for '%s'".format(klass,info(docId)))
 
-        codeTable.codeDef(klass).merge(codeDef)
-        classifier.train(klass = klass, sample = docId)
+        if(score > threshold){
+          if(debug)
+            println("--merge '%s' to def '%s'".format(info(docId),klass))
+
+          codeTable.codeDef(klass).merge(codeDef)
+          classifier.train(klass = klass, sample = docId)
+        }else{
+          if(debug)
+            println("--reject merge '%s' to def '%s' because score %.2f < threshold %.2f".format(
+              info(docId),klass,score,threshold))
+        }
       }
       case None => {
         if(debug)
-          println("--found no def for %s".format(info(docId)))
+          println("--found no def for '%s'".format(info(docId)))
       }
     }
   }
@@ -45,59 +50,68 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
 
 object Enricher {
   def usage() = {
-    println("java -jar text_classification_2.9.2-1.0.min.jar --algo=1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]")
+    println(
+"java -jar text_classification_2.9.2-1.0.min.jar | scala -jar text_classification_2.9.2-1.0.jar\n" +
+"\t[--algo=1nn|2nn|...\n" +
+"\t--new-table=filename\n" +
+"\t--existing-table=filename\n" + 
+"\t--result-table=filename\n" +
+"\t[--threshold=0.5]\n" +
+"\t[--code-id=id,...]\n" + 
+"\t[--debug]"
+    )
     System.exit(1)
   }
 
   def main(args: Array[String]) {
 
     var params = new HashMap[String,String]
-    var debug = false
 
-    val algoRegex = """^--algo=(\w+)""".r
-    val newTabRegex = """^--new-table=(\S+)""".r
-    val existingTabRegex = """^--existing-table=(\S+)""".r
-    val resultTabRegex = """^--result-table=(\S+)""".r
-    val codeIdRegex = """^--code-id=(\S+)""".r
+    val paramsRegex = Map(
+          "k"-> """^--algo=(\d+)nn$""".r,
+          "newTable" -> """^--new-table=(\S+)$""".r,
+          "existingTable" -> """^--existing-table=(\S+)$""".r,
+          "resultTable" -> """^--result-table=(\S+)$""".r,
+          "codeId" -> """^--code-id=(\S+)$""".r,
+          "threshold"-> """^--threshold=0?(\.\d+)$""".r
+        )
 
     args.foreach{ a =>
-      a match {
-        case algoRegex(value) => params += ("algo"->value)
-        case newTabRegex(value) => params += ("newTable"->value)
-        case existingTabRegex(value) => params += ("existingTable"->value)
-        case resultTabRegex(value) => params += ("resultTable"->value)
-        case codeIdRegex(value) => params += ("codeId"->value)
-        case "--debug" => debug = true
-        case _ =>
+      paramsRegex.foreach { case (name,pattern) =>
+        a match {
+          case pattern(value) => params += (name->value)
+          case _ =>
+        }
       }
     }
+    val debug = args.exists { a => a == "--debug" }
 
-    println("--params:\n%s".format(params.mkString(", ")))
+    if(debug)
+      println("--params:\n%s".format(params.mkString(", ")))
 
-    if(params.get("newTable") == None || params.get("existingTable") == None)
+    if(List("newTable", "existingTable", "k").exists{ name => params.get(name) == None })
       usage()
 
     val existingTab = CodeTable.parseTextFile(params("existingTable"))
     val newTab = CodeTable.parseTextFile(params("newTable"))
 
-    val knnRegex = """^(\d+)nn""".r
-    var algo: Option[Enricher] = None
+    val algo = new Enricher(
+      codeTable = newTab, 
+      k = params("k").toInt, 
+      threshold = params.getOrElse("threshold",".5").toDouble,
+      debug = debug)
 
-    params.get("algo") match {
-      case Some(knnRegex(k)) => algo = Some(new KNNEnricher(codeTable = newTab, k = k.toInt, debug = debug))
-      case _ => usage()
-    }
     params.get("codeId") match {
       case Some(codeId) => {
         codeId.split(",").foreach { z =>
           existingTab.getCodeDef(z) match {
-            case Some(codeDef) => algo.get.enrich(codeDef)
+            case Some(codeDef) => algo.enrich(codeDef)
             case None => println("%s does not exists in %s".format(codeId,params("existingTable")))
           }
         }
       }
       case None => {
-        existingTab.codeDefSeq.foreach {codeDef => algo.get.enrich(codeDef)}
+        existingTab.codeDefSeq.foreach {codeDef => algo.enrich(codeDef)}
       }
     }
     params.get("resultTable") match {

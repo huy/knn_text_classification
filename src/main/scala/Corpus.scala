@@ -2,7 +2,9 @@ import scala.collection.mutable.{ListBuffer,HashMap,HashSet}
 
 /* 
 Implementation of TermVector that is needed by Vector Space Model inspired by Text Classification Chapter 
-from Text Book "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze
+from Text Book "Introduction to Information Retrieval" By Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze,
+
+The representation using two arrays, one of ordered terms and other of corresponding freq, is borrowed from Lucence 
 */
 class TermVector(doc: Iterable[String]){
 

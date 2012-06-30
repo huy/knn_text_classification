@@ -19,16 +19,16 @@ class KNNTest extends FunSuite with BeforeAndAfter {
       knn.classified.size
     }
 
-    expect(Some("inside")){
-       knn.apply(test = 9)
+    expect("inside"){
+       knn.apply(test = 9).get._1
     }
 
-    expect(Some("outside")){
-       knn.apply(test = 2)
+    expect("outside"){
+       knn.apply(test = 2).get._1
     }
 
-    expect(Some("outside")){
-       knn.apply(test = 13)
+    expect("outside"){
+       knn.apply(test = 13).get._1
     }
 
   }
@@ -48,8 +48,8 @@ class KNNTest extends FunSuite with BeforeAndAfter {
     knn.train(sample = docId1, klass = "car")
     knn.train(sample = docId2, klass = "insurance")
 
-    expect(Some("insurance")){
-       knn.apply(test = docId3)
+    expect("insurance"){
+       knn.apply(test = docId3).get._1
     }
   }
 }
