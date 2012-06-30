@@ -3,11 +3,11 @@
 ## Modeling the problem
 
 The task is similar to problem of text classification. Text classification is the problem of identifying
-which category a new observed document (aka test document) belongs, on the basis of a training set of data 
-containing documents whose category membership is known.
+which class a new observed document (aka test document) belongs, on the basis of a training set of data 
+containing documents whose class  membership is known.
 
-In our case, a training set is new code table in which each code represents one category, the code's 
-description represents a document of known category - known document. New observed document - unknown document
+In our case, a training set is new code table in which each code represents one class, the code's 
+description represents a document of known class - known document. New observed document - unknown document
 is a code of a previouly enriched code table. 
 
 The problem is solved by using K-Nearest Neighbor algorithm. The KNN algorithm is implemented using corresponding 
@@ -17,7 +17,7 @@ by Christopher D. Manning, Prabhakar Raghavan & Hinrich Schütze.
 **K-Nearest Neighbor by Weighted Proximity**
 
 In K-Nearest Neighbor algorithm we look for a K - known documents (K is predefined parameter) that are "nearest" 
-to a test document then assign the test document to the same category of these documents with highest sum of proximity 
+to a test document then assign the test document to the same class of these documents with highest sum of proximity 
 if the sum of proximity exceeds predefined threshold from interval of 0 to 1. 
 
 Documents are represented using tf*idf vector space model. The proximity between two document is cosine similarity 
