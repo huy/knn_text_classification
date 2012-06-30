@@ -6,30 +6,6 @@ abstract class Enricher(var codeTable: CodeTable, val debug: Boolean = false) {
   def enrich(codeDef: CodeDef): Unit
 }
 
-class NaiveBayesEnricher(codeTable: CodeTable, debug: Boolean = false) extends Enricher(codeTable,debug){
-  var classifier = new NaiveBayes[String](debug)
-
-  codeTable.codeDefSeq.foreach {codeDef =>
-    classifier.train(klass = codeDef.id, doc = codeDef.termSeq)
-  }
-
-  def enrich(codeDef: CodeDef): Unit = {
-    classifier.apply(codeDef.id, codeDef.termSeq) match {
-      case Some(klass) => {
-        if(debug)
-          println("--merge %s to %s".format(codeDef.id,klass))
-
-        codeTable.codeDef(klass).merge(codeDef)
-        classifier.train(klass = klass, doc = codeDef.termSeq)
-      }
-      case None => {
-        if(debug)
-          println("--found no def for %s".format(codeDef.id))
-      }
-    }
-  }
-}
-
 class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) extends Enricher(codeTable,debug){
   var corpus = new Corpus
 
@@ -69,7 +45,7 @@ class KNNEnricher(codeTable: CodeTable, val k:Int = 2, debug: Boolean = false) e
 
 object Enricher {
   def usage() = {
-    println("java -jar text_classification_2.9.2-1.0.min.jar --algo=nb|1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]")
+    println("java -jar text_classification_2.9.2-1.0.min.jar --algo=1nn|2nn|... --new-table=filename --existing-table=filename --result-table=filename [--code-id=id,...] [--debug]")
     System.exit(1)
   }
 
@@ -108,7 +84,6 @@ object Enricher {
     var algo: Option[Enricher] = None
 
     params.get("algo") match {
-      case Some("nb") => algo = Some(new NaiveBayesEnricher(codeTable = newTab, debug = debug))
       case Some(knnRegex(k)) => algo = Some(new KNNEnricher(codeTable = newTab, k = k.toInt, debug = debug))
       case _ => usage()
     }

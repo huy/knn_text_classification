@@ -50,7 +50,7 @@ class CodeTable {
   def size = allCodeDefs.size
 
   def toText: Iterable[String] = {
-    allCodeDefs.values.toSeq.sortBy{ d => d.id }.map{ d => "%s\t%s".format(d.id,d.desc) +: 
+    allCodeDefs.values.toSeq.sortBy{ _.id }.map{ d => "%s\t%s".format(d.id,d.desc) +: 
       d.instances.map{ s => "-\t%s".format(s.desc) } }.flatten
   }
 
