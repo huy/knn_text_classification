@@ -52,7 +52,7 @@ class CodeTableTest extends FunSuite {
     var codeTable = new CodeTable()
     codeTable.add(codeDef)
 
-    expect("428\tBD Executive/Manager\n-\tbusiness development manager\n-\tmanager of planning and reporting"){
+    expect("428\tBD Executive/Manager\n-\tbusiness development manager #\n-\tmanager of planning and reporting #"){
       codeTable.toText.mkString("\n")
     }
   }

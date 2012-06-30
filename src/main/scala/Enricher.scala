@@ -26,23 +26,27 @@ class Enricher(codeTable: CodeTable, k:Int = 3, threshold: Double = 0.5, debug: 
     classifier.apply(docId) match {
       case Some((klass,score)) => {
         if(debug)
-          println("---found def '%s' for '%s'".format(klass,info(docId)))
+          println("---found code '%s' for '%s'".format(klass,info(docId)))
 
         if(score > threshold){
           if(debug)
-            println("--merge '%s' to def '%s'".format(info(docId),klass))
+            println("--merge '%s' to code '%s'".format(info(docId),klass))
 
-          codeTable.codeDef(klass).merge(codeDef)
+          codeTable.codeDef(klass).merge(
+            codeDef,
+            Some(Origin("%s:%s".format(codeTable.name,info(docId)),"automatic",score))
+          )
+
           classifier.train(klass = klass, sample = docId)
         }else{
           if(debug)
-            println("--reject merge '%s' to def '%s' because score %.2f < threshold %.2f".format(
+            println("--reject merge '%s' to code '%s' because score %.2f < threshold %.2f".format(
               info(docId),klass,score,threshold))
         }
       }
       case None => {
         if(debug)
-          println("--found no def for '%s'".format(info(docId)))
+          println("--found no code for '%s'".format(info(docId)))
       }
     }
   }

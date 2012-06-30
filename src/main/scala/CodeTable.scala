@@ -3,13 +3,26 @@ import scala.util.matching.Regex
 import scala.io.Source
 import java.io.{File,PrintWriter}
 
-case class CodeInst(val desc: String, val transfer: String = "", val confidence: Double = 1.0)
+case class Origin(
+  val ref: String, 
+  val transferBy: String, 
+  val confidence: Double){
+  
+  override def toString = {
+    "%s %.2f".format(ref,confidence)
+  }
+
+}
+
+case class CodeInst(
+  val desc: String, 
+  val origin: List[Origin] = List.empty)
 
 case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) {
 
    val stopWords = Set(
     "a", "an", "and", "are", "as", "at", "be", "but", "by",
-    "for", "if", "in", "into", "is", "it",
+    "for", "if", "in", "into", "is", //"it", remove so not to be confused with IT
     "no", "not", "of", "on", "or", "such",
     "that", "the", "their", "then", "there", "these",
     "they", "this", "to", "was", "will", "with"
@@ -17,9 +30,16 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
   
    var instances = new ListBuffer[CodeInst]
 
-   def merge(codeDef: CodeDef) = {
-     instances += CodeInst(codeDef.desc)
-     instances ++= codeDef.instances
+   def merge(codeDef: CodeDef, origin: Option[Origin] = None) = {
+     if(origin == None){
+       instances += CodeInst(codeDef.desc)
+       instances ++= codeDef.instances
+     }
+     else{
+       instances += CodeInst(codeDef.desc, List(origin.get))
+       instances ++= codeDef.instances.map { inst => 
+         CodeInst(inst.desc, origin.get :: inst.origin) }
+     }
    }
 
    private def stem(term: String) = {
@@ -37,7 +57,7 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
    }
 }
 
-class CodeTable {
+class CodeTable(val name: String = "Unknown") {
   private var allCodeDefs = new HashMap[String,CodeDef]
 
   def add(codeDef: CodeDef) = allCodeDefs += (codeDef.id->codeDef)
@@ -50,8 +70,8 @@ class CodeTable {
   def size = allCodeDefs.size
 
   def toText: Iterable[String] = {
-    allCodeDefs.values.toSeq.sortBy{ _.id }.map{ d => "%s\t%s".format(d.id,d.desc) +: 
-      d.instances.map{ s => "-\t%s".format(s.desc) } }.flatten
+    allCodeDefs.values.toSeq.sortBy{ _.id }.map{ d => "%s\t%s".format(d.id, d.desc) +: 
+      d.instances.map{ s => "-\t%s #%s".format(s.desc, s.origin.mkString("<-")) } }.flatten
   }
 
   def toTextFile(fileName: String) = {
@@ -67,11 +87,11 @@ class CodeTable {
 
 object CodeTable {
 
-  def parseText(lines: Iterator[String]): CodeTable = {
+  def parseText(lines: Iterator[String], name: String = "Unknown"): CodeTable = {
      val startDef = new Regex("""(\w+)\s+(.+)""")
      val continueDef = new Regex("""-\s+(.+)""")
   
-     var result = new CodeTable
+     var result = new CodeTable(name)
      var lineno = 1
      var currentDef: Option[CodeDef] = None
   
@@ -98,6 +118,6 @@ object CodeTable {
    }
 
    def parseTextFile(fileName: String): CodeTable = {
-      parseText(Source.fromFile(fileName).getLines)     
+      parseText(Source.fromFile(fileName).getLines,fileName)     
    }
 }
