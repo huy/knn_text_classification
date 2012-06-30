@@ -18,6 +18,21 @@ class CodeTableTest extends FunSuite {
        codeTable.codeDef("177").instances.last }
   }
 
+  test("parse anotation text 1 level") {
+     val origins = Origin.parseText("#src/test/data/sample.txt:311 automatic 0.94")
+
+     expect(1) { origins.size }
+     expect("src/test/data/sample.txt:311") { origins(0).ref }
+     expect("automatic") { origins(0).transferBy }
+     expect(0.94) { origins(0).confidence }
+  }
+
+  test("parse anotation text 2 levels") {
+     val origins = Origin.parseText("#other.txt:311 automatic 0.94<-one.txt:3 automatic 0.53")
+     expect(2) { origins.size }
+  }
+
+
   test("termSeq of codeDef") {
      var codeDef = CodeDef(id="428",desc="BD Executive/Manager")
      codeDef.instances += CodeInst("business development manager")
