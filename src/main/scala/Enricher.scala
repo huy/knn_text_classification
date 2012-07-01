@@ -34,7 +34,7 @@ class Enricher(codeTable: CodeTable, k:Int = 3, threshold: Double = 0.5, debug: 
 
           codeTable.codeDef(klass).merge(
             codeDef,
-            Some(Origin("%s:%s".format(codeTable.name,info(docId)),"automatic",score))
+            Some(Origin(codeTable.name,info(docId),"automatic",score))
           )
 
           classifier.train(klass = klass, sample = docId)

@@ -19,19 +19,19 @@ class CodeTableTest extends FunSuite {
   }
 
   test("parse anotation text 1 level") {
-     val origins = Origin.parseText("#src/test/data/sample.txt:311 automatic 0.94")
+     val origins = Origin.parseText("#src/test/data/sample.txt 311 automatic 0.94")
 
      expect(1) { origins.size }
-     expect("src/test/data/sample.txt:311") { origins(0).ref }
+     expect("src/test/data/sample.txt") { origins(0).tableName }
+     expect("311") { origins(0).codeId }
      expect("automatic") { origins(0).transferBy }
      expect(0.94) { origins(0).confidence }
   }
 
   test("parse anotation text 2 levels") {
-     val origins = Origin.parseText("#other.txt:311 automatic 0.94<-one.txt:3 automatic 0.53")
+     val origins = Origin.parseText("#other.txt 311 automatic 0.94<-one.txt 3 automatic 0.53")
      expect(2) { origins.size }
   }
-
 
   test("termSeq of codeDef") {
      var codeDef = CodeDef(id="428",desc="BD Executive/Manager")

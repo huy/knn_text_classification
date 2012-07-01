@@ -4,30 +4,31 @@ import scala.io.Source
 import java.io.{File,PrintWriter}
 
 class Origin(
-  val ref: String, 
+  val tableName: String, 
+  val codeId: String,
   val transferBy: String, 
   val confidence: Double){
   
   override def toString = {
-    "%s %s %.2f".format(ref, transferBy, confidence)
+    "%s %s %s %.2f".format(tableName, codeId, transferBy, confidence)
   }
-
 }
 
 object Origin {
   def apply(
-    ref: String, 
+    tableName: String, 
+    codeId: String,
     transferBy: String, 
-    confidence: Double) = new Origin(ref, transferBy, confidence) 
+    confidence: Double) = new Origin(tableName, codeId, transferBy, confidence) 
 
-  def parseText(anotation: String): List[Origin] = {
-    if(anotation.length > 0) {
-      anotation.substring(1,anotation.length).split("<-").map{ z => 
+  def parseText(annotation: String): List[Origin] = {
+    if(annotation.length > 0) {
+      annotation.substring(1,annotation.length).split("<-").map{ z => 
         val arr = z.split(" ")
-        if(arr.length != 3)
-          throw new RuntimeException("anotation '%s' has wrong format".format(anotation))
+        if(arr.length != 4)
+          throw new RuntimeException("annotation '%s' has wrong format".format(annotation))
 
-        new Origin(arr(0),arr(1),arr(2).toDouble)
+        new Origin(arr(0),arr(1),arr(2),arr(3).toDouble)
       }.toList  
     }else 
       Nil
@@ -38,7 +39,7 @@ case class CodeInst(
   val desc: String, 
   val origin: List[Origin] = List.empty)
 
-case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) {
+case class CodeDef(val id: String, val desc: String) {
 
    val stopWords = Set(
     "a", "an", "and", "are", "as", "at", "be", "but", "by",
@@ -62,8 +63,9 @@ case class CodeDef(val id: String, val codeDesc: String = "", val desc: String) 
      }
    }
 
+   private val stemmer = new Stemmer
+
    private def stem(term: String) = {
-     var stemmer = new Stemmer
      stemmer.add(term.toCharArray,term.size)
      stemmer.stem()
      stemmer.toString
@@ -108,8 +110,8 @@ class CodeTable(val name: String = "Unknown") {
 object CodeTable {
 
   def parseText(lines: Iterator[String], name: String = "Unknown"): CodeTable = {
-     val startDef = new Regex("""(\w+)\s+(.+)""")
-     val continueDef = new Regex("""-\s+([^\#]+)(.*)""")
+     val startDef = new Regex("""^(\w+)\s+(.+)$""")
+     val continueDef = new Regex("""^-\s+([^\#]+)(.*)$""")
   
      var result = new CodeTable(name)
      var lineno = 1
@@ -122,11 +124,11 @@ object CodeTable {
              result.add(currentDef.get)
            currentDef = Some(CodeDef(id = code, desc = desc))
          }
-         case continueDef(synonym, anotation) => {
+         case continueDef(synonym, annotation) => {
            if(currentDef == None)
              throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
            else
-             currentDef.get.instances += CodeInst(synonym,Origin.parseText(anotation))
+             currentDef.get.instances += CodeInst(synonym,Origin.parseText(annotation))
          }  
          case _ => throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
        }  
