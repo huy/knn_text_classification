@@ -26,12 +26,22 @@ object Origin {
       annotation.substring(1,annotation.length).split("<-").map{ z => 
         val arr = z.split(" ")
         if(arr.length != 4)
-          throw new RuntimeException("annotation '%s' has wrong format".format(annotation))
+          throw new RuntimeException("Error annotation '%s' has wrong format".format(annotation))
 
-        new Origin(arr(0),arr(1),arr(2),arr(3).toDouble)
+        new Origin(
+          tableName = arr(0), 
+          codeId = arr(1), 
+          transferBy = arr(2), 
+          confidence = 
+            try { 
+              arr(3).toDouble 
+            }catch { 
+              case ex: Exception => throw new RuntimeException("Error confidence score '%s' hash wrong format".format(arr(3)), ex) 
+            })
+
       }.toList  
     }else 
-      Nil
+      List.empty
   }
 }
 
@@ -79,7 +89,7 @@ case class CodeDef(val id: String, val desc: String) {
    }
 }
 
-class CodeTable(val name: String = "Unknown") {
+class CodeTable(val name: Option[String] = None) {
   private var allCodeDefs = new HashMap[String,CodeDef]
 
   def add(codeDef: CodeDef) = allCodeDefs += (codeDef.id->codeDef)
@@ -99,7 +109,7 @@ class CodeTable(val name: String = "Unknown") {
   def toTextFile(fileName: String) = {
     val p = new java.io.PrintWriter(new File(fileName))
     try { 
-      toText.foreach{p.println}
+      toText.foreach{ p.println }
     }
     finally { 
       p.close() 
@@ -109,7 +119,7 @@ class CodeTable(val name: String = "Unknown") {
 
 object CodeTable {
 
-  def parseText(lines: Iterator[String], name: String = "Unknown"): CodeTable = {
+  def parseText(lines: Iterator[String], name: Option[String] = None): CodeTable = {
      val startDef = new Regex("""^(\w+)\s+(.+)$""")
      val continueDef = new Regex("""^-\s+([^\#]+)(.*)$""")
   
@@ -118,20 +128,24 @@ object CodeTable {
      var currentDef: Option[CodeDef] = None
   
      lines.foreach { z =>
-       z match {
-         case startDef(code, desc) => { 
-           if(currentDef != None)
-             result.add(currentDef.get)
-           currentDef = Some(CodeDef(id = code, desc = desc))
-         }
-         case continueDef(synonym, annotation) => {
-           if(currentDef == None)
-             throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
-           else
-             currentDef.get.instances += CodeInst(synonym,Origin.parseText(annotation))
+       try{
+         z match {
+           case startDef(code, desc) => { 
+             if(currentDef != None)
+               result.add(currentDef.get)
+             currentDef = Some(CodeDef(id = code, desc = desc))
+           }
+           case continueDef(synonym, annotation) => {
+             if(currentDef == None)
+               throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
+             else
+               currentDef.get.instances += CodeInst(synonym,Origin.parseText(annotation))
+           }  
+           case _ => throw new RuntimeException("Error line '%s' has wrong format".format(z))
          }  
-         case _ => throw new RuntimeException("line %d: '%s' has wrong format".format(lineno,z))
-       }  
+       } catch {
+         case ex: Exception => throw new RuntimeException("Error when parsing line %d: ".format(lineno), ex)
+       }
        lineno += 1 
      }
      if(currentDef != None) result.add(currentDef.get)
@@ -140,6 +154,6 @@ object CodeTable {
    }
 
    def parseTextFile(fileName: String): CodeTable = {
-      parseText(Source.fromFile(fileName).getLines,fileName)     
+      parseText(Source.fromFile(fileName).getLines, Some(fileName))     
    }
 }
