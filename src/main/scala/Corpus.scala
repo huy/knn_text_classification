@@ -115,11 +115,11 @@ class Corpus {
     val v2 = docVector(other)
     
     var numerator = v1.intersectPos(v2).foldLeft(0.0) { case(sum,(i,j)) =>
-      val idfVal = idf(v1.terms(i))
-     
       require(v1.termFreqs(i) > 0) 
       require(v2.termFreqs(j) > 0) 
       require(v1.terms(i) == v2.terms(j)) 
+
+      val idfVal = idf(v1.terms(i))
 
       if(idfVal != 0.0) 
         sum + v1.termFreqs(i)*v2.termFreqs(j)*idfVal*idfVal
