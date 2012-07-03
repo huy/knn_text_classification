@@ -25,8 +25,8 @@ of their vectors.
 
 **Term's processing**
 
-In order to use these algorithms, code's description as well as description of it's synonyms has to be tokenized, 
-stop worlds has to be removed and terms are to be stemmed 
+In order to use the algorithm, code's description as well as description of it's synonyms are tokenized, 
+stop worlds are removed and terms are stemmed. 
 
 * the list of stop words is borrowed from ENGLISH_STOP_WORDS of http://lucene.apache.org/
 * the implementation of stemming is borrowed from http://tartarus.org/~martin/PorterStemmer/java.txt 
@@ -61,12 +61,12 @@ Using sbt
 
 **Examples**
 
-Enrich new code table in file `new.txt` by Naive Bayes Algorithm using previously enriched table `existing.txt` and write result after enrichment to `out.txt`
+Enrich new code table in file `new.txt` using previously enriched table `existing.txt` and write result after enrichment to `out.txt`
 
-    scala -jar text_classification_2.9.2-1.0.jar --algo=nb --new-table=new.txt --existing-table=existing.txt \
-    --result-table=out.txt --threshold=0.6
+    scala -jar text_classification_2.9.2-1.0.jar --algo=3nn --new-table=new.txt --existing-table=existing.txt \
+    --result-table=out.txt --threshold=0.4
 
-Enrich new code table in file `new.txt` by KNN Algorithm with K=3 using two codes from previously enriched table `existing.txt`, write debug info and the result to stdout
+Enrich new code table in file `new.txt` using two codes from previously enriched table `existing.txt`, write debug info and the result to stdout
 
     scala -jar text_classification_2.9.2-1.0.jar --algo=3nn --new-table=new.txt --existing-table=existing.txt \
     --result-table=out.txt --threshold=0.4 --code-id=311,142 --debug
@@ -75,12 +75,14 @@ Enrich new code table in file `new.txt` by KNN Algorithm with K=3 using two code
 
 Code table is ascii file with the following format e.g.
 
-    1       Administrator  # id and desc of a code
-    -       system administrator # synnonm
-    -       network administrator
-    -       Database Administrator
-    434     Recruitment Consultant
-    -       On-site Consultant
-    -       Senior Recruitment Consultant
+    1	Administrator  
+    -	system administrator 
+    -	network administrator
+    2 	Assistant
+    -	Assistant #src/test/data/sample.txt 311 automatic 0.94
+    -	assistant store manager #src/test/data/sample.txt 311 automatic 0.94
 
-
+Each code's definition start with a line containing id of the code and its description, following by severals line repesenting synonyms.
+These lines begin with `-` then the synonym and can has a comment after `#`. The comment indicates originals of the synonym and how it
+get merged into the current table.  
+    
