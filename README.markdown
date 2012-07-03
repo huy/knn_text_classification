@@ -1,4 +1,8 @@
-# Solution for populate synonym's table automatically
+# Populate synonym's table automatically
+
+## Overview
+
+This is simple coding exercise that aim to enrich a given synonym's table using other synonym's tables. 
 
 ## Modeling the problem
 
