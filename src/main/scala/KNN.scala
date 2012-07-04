@@ -28,15 +28,15 @@ class KNN[C](
     if(debug)
       println("--top %d:\n%s".format(k, topK.mkString(", ")))
      
+    if(topK.size == 0)
+      return None
+
     val scorePerKlass = topK.groupBy{case (klass,score) => klass}.
       map{ case (klass,samples) => (klass,samples.foldLeft(0.0){ (sum,s) => sum + s._2 }) }.toSeq.sortBy(_._2)
     
     if(debug)
       println("--score per class against %s:\n%s".format(info(test), scorePerKlass.mkString(", ")))
  
-    if(scorePerKlass.size == 0)
-      None
-    else
-      Some(scorePerKlass.last)
+    Some(scorePerKlass.last)
   }
 }

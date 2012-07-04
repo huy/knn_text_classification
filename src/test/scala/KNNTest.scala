@@ -1,7 +1,7 @@
 import org.scalatest.FunSuite
 import org.scalatest.BeforeAndAfter
  
-class KNNTest extends FunSuite with BeforeAndAfter {
+class KNNTest extends FunSuite {
 
   test("Knn for 2 classes inside and outside of interval 5..10"){
     val knn = new KNN[String](proximity = (a: Int, b: Int) => 1.0/(1.0+math.abs(a-b)), k = 3)
