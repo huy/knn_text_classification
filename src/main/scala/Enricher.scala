@@ -110,7 +110,7 @@ object Enricher {
         codeId.split(",").foreach { z =>
           existingTab.getCodeDef(z) match {
             case Some(codeDef) => algo.enrich(codeDef)
-            case None => println("%s does not exists in %s".format(codeId,params("existingTable")))
+            case None => println("%s does not exists in %s".format(z,params("existingTable")))
           }
         }
       }

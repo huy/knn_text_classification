@@ -36,7 +36,7 @@ object Origin {
             try { 
               arr(3).toDouble 
             }catch { 
-              case ex: Exception => throw new RuntimeException("Error confidence score '%s' hash wrong format".format(arr(3)), ex) 
+              case ex: Exception => throw new RuntimeException("Error confidence score '%s' has wrong format".format(arr(3)), ex) 
             })
 
       }.toList  
@@ -62,14 +62,16 @@ case class CodeDef(val id: String, val desc: String) {
    var instances = new ListBuffer[CodeInst]
 
    def merge(codeDef: CodeDef, origin: Option[Origin] = None) = {
-     if(origin == None){
-       instances += CodeInst(codeDef.desc)
-       instances ++= codeDef.instances
-     }
-     else{
-       instances += CodeInst(codeDef.desc, List(origin.get))
-       instances ++= codeDef.instances.map { inst => 
-         CodeInst(inst.desc, origin.get :: inst.origin) }
+     origin match {
+       case Some(x) => {
+         instances += CodeInst(codeDef.desc, List(x))
+         instances ++= codeDef.instances.map { inst => 
+           CodeInst(inst.desc, x :: inst.origin) }
+       }
+       case None => {
+         instances += CodeInst(codeDef.desc)
+         instances ++= codeDef.instances
+       }
      }
    }
 

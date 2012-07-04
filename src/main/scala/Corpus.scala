@@ -11,12 +11,8 @@ class TermVector(doc: Iterable[String]){
    val (terms,termFreqs) = process(doc)
 
    private def process(doc: Iterable[String]): (Array[String],Array[Int])= {
-     var tmp = new HashMap[String,Int]
-     doc.foreach { term => 
-       if(!tmp.contains(term))
-         tmp += (term->0)
-       tmp(term) += 1 
-     }
+     var tmp = new HashMap[String,Int].withDefaultValue(0)
+     doc.foreach { term => tmp(term) += 1 }
      var terms = new Array[String](tmp.size)
      var termFreqs = new Array[Int](tmp.size)
      var i = 0
