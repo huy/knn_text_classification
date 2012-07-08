@@ -1,36 +1,34 @@
 import scala.io.Source
 import scala.collection.mutable.{ListBuffer,HashMap}
 import scala.util.matching.Regex
+import com.codahale.logula.Logging
 
-class Enricher(codeTable: CodeTable, k:Int = 3, threshold: Double = 0.5, debug: Boolean = false){
+class Enricher(codeTable: CodeTable, k:Int = 3, threshold: Double = 0.5) extends Logging{
   var corpus = new Corpus
 
-  var debugInfo = new HashMap[Int,String]
-  def info(docId: Int) = debugInfo.getOrElse(docId,docId.toString)
+  var docsInfo = new HashMap[Int,String]
+  def info(docId: Int) = docsInfo.getOrElse(docId,docId.toString)
 
-  var classifier  = new KNN[String](proximity = corpus.cosine, k = k, debug = debug, info = info)
+  var classifier  = new KNN[String](proximity = corpus.cosine, k = k, info = info)
 
   codeTable.codeDefSeq.foreach { codeDef =>
     val docId = corpus.add(codeDef.termSeq)
-    if(debug)
-      debugInfo += (docId->codeDef.id)
+    docsInfo += (docId->codeDef.id)
     classifier.train(klass = codeDef.id, sample = docId)
   }
 
   def enrich(codeDef: CodeDef): Unit = {
     val docId = corpus.add(codeDef.termSeq)
 
-    if(debug)
-      debugInfo += (docId->codeDef.id)
+    docsInfo += (docId->codeDef.id)
 
     classifier.apply(docId) match {
       case Some((klass,score)) => {
-        if(debug)
-          println("---found code '%s' for '%s'".format(klass,info(docId)))
+
+        log.debug("---found code '%s' for '%s'".format(klass,info(docId)))
 
         if(score > threshold){
-          if(debug)
-            println("--merge '%s' to code '%s'".format(info(docId),klass))
+          log.debug("--merge '%s' to code '%s'".format(info(docId),klass))
 
           codeTable.codeDef(klass).merge(
             codeDef,
@@ -39,20 +37,18 @@ class Enricher(codeTable: CodeTable, k:Int = 3, threshold: Double = 0.5, debug: 
 
           classifier.train(klass = klass, sample = docId)
         }else{
-          if(debug)
-            println("--reject merge '%s' to code '%s' because score %.2f < threshold %.2f".format(
+          log.debug("--reject merge '%s' to code '%s' because score %.2f < threshold %.2f".format(
               info(docId),klass,score,threshold))
         }
       }
       case None => {
-        if(debug)
-          println("--found no code for '%s'".format(info(docId)))
+        log.debug("--found no code for '%s'".format(info(docId)))
       }
     }
   }
 }
 
-object Enricher {
+object Enricher extends Logging{
   def usage() = {
     println(
 "java -jar text_classification_2.9.2-1.0.min.jar | scala -jar text_classification_2.9.2-1.0.jar\n" +
@@ -62,9 +58,20 @@ object Enricher {
 "\t--result-table=filename\n" +
 "\t[--threshold=0.5]\n" +
 "\t[--code-id=id,...]\n" + 
-"\t[--debug]"
+"\t[--debug=info|debug]"
     )
     System.exit(1)
+  }
+
+  def configureLog(level: String) = {
+    import org.apache.log4j.Level
+    val levels = Map("info"->Level.INFO, "debug"->Level.DEBUG)
+    
+    Logging.configure { log =>
+      log.level = levels.getOrElse(level.toLowerCase, Level.INFO) // rootLogger level
+      log.console.enabled = true
+      log.console.threshold = log.level // same as rootLogger level
+    }
   }
 
   def main(args: Array[String]) {
@@ -77,7 +84,8 @@ object Enricher {
           "existingTable" -> """^--existing-table=(\S+)$""".r,
           "resultTable" -> """^--result-table=(\S+)$""".r,
           "codeId" -> """^--code-id=(\S+)$""".r,
-          "threshold"-> """^--threshold=0?(\.\d+)$""".r
+          "threshold"-> """^--threshold=0?(\.\d+)$""".r,
+          "debug"-> """^--debug=(\S+)$""".r
         )
 
     args.foreach{ a =>
@@ -88,13 +96,15 @@ object Enricher {
         }
       }
     }
-    val debug = args.exists { a => a == "--debug" }
 
-    if(debug)
-      println("--params:\n%s".format(params.mkString(", ")))
+    configureLog(params.getOrElse("debug","info"))
+
+    log.info("configure log with level " + params.getOrElse("debug","info"))
+    log.debug("--params:\n%s".format(params.mkString(", ")))
 
     if(List("newTable", "existingTable", "k").exists{ name => params.get(name) == None })
       usage()
+
 
     val existingTab = CodeTable.parseTextFile(params("existingTable"))
     val newTab = CodeTable.parseTextFile(params("newTable"))
@@ -102,8 +112,7 @@ object Enricher {
     val algo = new Enricher(
       codeTable = newTab, 
       k = params("k").toInt, 
-      threshold = params.getOrElse("threshold",".5").toDouble,
-      debug = debug)
+      threshold = params.getOrElse("threshold",".5").toDouble)
 
     params.get("codeId") match {
       case Some(codeId) => {
