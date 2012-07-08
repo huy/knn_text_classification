@@ -70,10 +70,10 @@ Enrich new code table in file `new.txt` using previously enriched table `existin
     scala -jar text_classification_2.9.2-1.0.jar --algo=3nn --new-table=new.txt --existing-table=existing.txt \
     --result-table=out.txt --threshold=0.4
 
-Enrich new code table in file `new.txt` using two codes from previously enriched table `existing.txt`, write debug info and the result to stdout
+Enrich new code table in file `new.txt` using two codes from previously enriched table `existing.txt`,log debug info to console and the result to stdout
 
     scala -jar text_classification_2.9.2-1.0.jar --algo=3nn --new-table=new.txt --existing-table=existing.txt \
-    --result-table=out.txt --threshold=0.4 --code-id=311,142 --debug
+    --result-table=out.txt --threshold=0.4 --code-id=311,142 --log=debug
 
 **File format of a code table**
 

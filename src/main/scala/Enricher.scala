@@ -58,7 +58,7 @@ object Enricher extends Logging{
 "\t--result-table=filename\n" +
 "\t[--threshold=0.5]\n" +
 "\t[--code-id=id,...]\n" + 
-"\t[--debug=info|debug]"
+"\t[--log=info|debug]"
     )
     System.exit(1)
   }
@@ -85,7 +85,7 @@ object Enricher extends Logging{
           "resultTable" -> """^--result-table=(\S+)$""".r,
           "codeId" -> """^--code-id=(\S+)$""".r,
           "threshold"-> """^--threshold=0?(\.\d+)$""".r,
-          "debug"-> """^--debug=(\S+)$""".r
+          "log"-> """^--log=(\S+)$""".r
         )
 
     args.foreach{ a =>
@@ -97,7 +97,7 @@ object Enricher extends Logging{
       }
     }
 
-    val logLevel = params.getOrElse("debug","info")
+    val logLevel = params.getOrElse("log","info")
     configureLog(logLevel)
 
     log.info("configure log with level: " + logLevel) 
