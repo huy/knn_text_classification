@@ -25,10 +25,10 @@ class Enricher(codeTable: CodeTable, k:Int = 3, threshold: Double = 0.5) extends
     classifier.apply(docId) match {
       case Some((klass,score)) => {
 
-        log.debug("found code '%s' for '%s'".format(klass,info(docId)))
+        log.debug("found code '%s' for '%s'", klass, info(docId))
 
         if(score > threshold){
-          log.debug("merge '%s' to code '%s'".format(info(docId),klass))
+          log.debug("merge '%s' to code '%s'", info(docId),klass)
 
           codeTable.codeDef(klass).merge(
             codeDef,
@@ -37,12 +37,12 @@ class Enricher(codeTable: CodeTable, k:Int = 3, threshold: Double = 0.5) extends
 
           classifier.train(klass = klass, sample = docId)
         }else{
-          log.debug("reject merge '%s' to code '%s' because score %.2f < threshold %.2f".format(
-              info(docId),klass,score,threshold))
+          log.debug("reject merge '%s' to code '%s' because score %.2f < threshold %.2f",
+              info(docId),klass,score,threshold)
         }
       }
       case None => {
-        log.debug("found no code for '%s'".format(info(docId)))
+        log.debug("found no code for '%s'", info(docId))
       }
     }
   }
